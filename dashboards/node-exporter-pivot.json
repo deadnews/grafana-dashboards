@@ -3,8 +3,8 @@
   "kind": "Dashboard",
   "metadata": {
     "name": "node-exporter-pivot",
-    "generation": 38,
-    "creationTimestamp": "2026-03-24T23:27:00Z",
+    "generation": 5,
+    "creationTimestamp": "2026-07-01T00:59:39Z",
     "labels": {},
     "annotations": {}
   },
@@ -70,7 +70,8 @@
                         "target": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -95,7 +96,8 @@
                         "step": 20
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "D",
@@ -119,7 +121,8 @@
                         "step": 20
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -143,7 +146,8 @@
                         "step": 20
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "C",
@@ -338,7 +342,8 @@
                         "step": 4
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "F",
@@ -363,7 +368,8 @@
                         "step": 4
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -386,7 +392,8 @@
                         "step": 4
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -409,7 +416,8 @@
                         "legendFormat": "Used%"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "H",
@@ -636,7 +644,8 @@
                         "step": 4
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -659,7 +668,8 @@
                         "step": 4
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -853,7 +863,8 @@
                         "step": 20
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -875,7 +886,8 @@
                         "legendFormat": "TCP_tw"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "D",
@@ -897,7 +909,8 @@
                         "legendFormat": "Sockets_used"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -917,7 +930,8 @@
                         "legendFormat": "UDP_inuse"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "C",
@@ -937,7 +951,8 @@
                         "legendFormat": "TCP_alloc"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "E",
@@ -957,7 +972,8 @@
                         "legendFormat": "{{instance}}_Tcp_PassiveOpens"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "G",
@@ -977,7 +993,8 @@
                         "legendFormat": "{{instance}}_Tcp_ActiveOpens"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "F",
@@ -997,7 +1014,8 @@
                         "legendFormat": "Tcp_InSegs"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "H",
@@ -1017,7 +1035,8 @@
                         "legendFormat": "Tcp_OutSegs"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "I",
@@ -1037,7 +1056,8 @@
                         "legendFormat": "Tcp_RetransSegs"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "J",
@@ -1057,7 +1077,8 @@
                         "legendFormat": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "K",
@@ -1221,7 +1242,8 @@
                         "range": true
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -1246,7 +1268,8 @@
                         "legendFormat": "Total Used FD"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -1271,7 +1294,8 @@
                         "legendFormat": "Total FD Usage%"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "C",
@@ -1296,7 +1320,8 @@
                         "legendFormat": "Process FD Usage%"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "D",
@@ -1490,7 +1515,7 @@
         "spec": {
           "id": 160,
           "title": "Disk R/W Time (Reference: <100ms)",
-          "description": "Read time seconds seconds spent on read ops per disk partition\n\nWrite time seconds seconds spent on write ops per disk partition\n\nIO time seconds seconds spent on I/O operations per partition\n\nIO time weighted seconds: weighted seconds per partitionweighted seconds spent on I/O operations",
+          "description": "Read/Write/IO time: seconds spent on read, write, and total I/O per partition. \"IO time weighted\" weights I/O-seconds by queue depth (>1 when requests overlap).",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1512,7 +1537,8 @@
                         "legendFormat": "{{device}}_Read"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -1535,7 +1561,8 @@
                         "legendFormat": "{{device}}_Write"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "C",
@@ -1558,7 +1585,8 @@
                         "step": 10
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -1580,7 +1608,8 @@
                         "legendFormat": "{{device}}_Weighted"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "D",
@@ -1766,7 +1795,8 @@
                         "step": 10
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -1789,7 +1819,8 @@
                         "step": 10
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -1811,7 +1842,8 @@
                         "legendFormat": "{{device}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "C",
@@ -1997,7 +2029,8 @@
                         "step": 10
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -2020,7 +2053,8 @@
                         "step": 10
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -2208,7 +2242,8 @@
                         "legendFormat": "Capacity%: {{mountpoint}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -2231,7 +2266,8 @@
                         "range": true
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -2387,7 +2423,8 @@
                         "legendFormat": "{{device}}_/s I/OOps%"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "C",
@@ -2725,7 +2762,8 @@
                         "legendFormat": "Total CPU Usage%"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -2748,7 +2786,8 @@
                         "legendFormat": "IO Wait%"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "C",
@@ -2770,7 +2809,8 @@
                         "legendFormat": "Mem Used%"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -2793,7 +2833,8 @@
                         "legendFormat": "Max Part Used% ({{mountpoint}})"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "D",
@@ -2816,7 +2857,8 @@
                         "legendFormat": "Swap Part Used%"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "F",
@@ -2927,7 +2969,8 @@
                         "legendFormat": "Total"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "C",
@@ -2952,7 +2995,8 @@
                         "legendFormat": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -2976,7 +3020,8 @@
                         "legendFormat": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -3255,7 +3300,8 @@
                         "target": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -3278,7 +3324,8 @@
                         "step": 600
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -3494,7 +3541,8 @@
                         "step": 240
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -3520,7 +3568,8 @@
                         "step": 240
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -3546,7 +3595,8 @@
                         "step": 240
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "F",
@@ -3741,7 +3791,8 @@
                         "step": 4
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -3767,7 +3818,8 @@
                         "step": 4
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -3792,7 +3844,8 @@
                         "range": true
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "H",
@@ -3991,7 +4044,8 @@
                         "legendFormat": "Used"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "C",
@@ -4016,7 +4070,8 @@
                         "legendFormat": "Total Disk"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "E",
@@ -4041,7 +4096,8 @@
                         "legendFormat": "Avg%"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -4238,7 +4294,8 @@
                         "legendFormat": "Hostname"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -4262,7 +4319,8 @@
                         "legendFormat": "Uptime"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "D",
@@ -4286,7 +4344,8 @@
                         "legendFormat": "Total RAM"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -4310,7 +4369,8 @@
                         "legendFormat": "CPU Cores"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "C",
@@ -4334,7 +4394,8 @@
                         "legendFormat": "5m Load"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "L",
@@ -4358,7 +4419,8 @@
                         "legendFormat": "CPU Usage%"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "F",
@@ -4382,7 +4444,8 @@
                         "legendFormat": "Mem Used%"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "G",
@@ -4406,7 +4469,8 @@
                         "legendFormat": "__auto"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "E",
@@ -4430,7 +4494,8 @@
                         "legendFormat": "Max Read"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "H",
@@ -4454,7 +4519,8 @@
                         "legendFormat": "Max Write"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "I",
@@ -4478,7 +4544,8 @@
                         "legendFormat": "CurrEstab"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "M",
@@ -4502,7 +4569,8 @@
                         "legendFormat": "TIME_WAIT"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "N",
@@ -4526,7 +4594,8 @@
                         "legendFormat": "Download BW"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "J",
@@ -4550,7 +4619,8 @@
                         "legendFormat": "Upload BW"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "K",
@@ -4574,7 +4644,8 @@
                         "legendFormat": "__auto"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "O",
@@ -4598,7 +4669,8 @@
                         "legendFormat": "IOutilUsed%"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "P",
@@ -5330,7 +5402,8 @@
                         "target": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -5360,7 +5433,8 @@
                         "target": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -5571,7 +5645,8 @@
                         "timeField": "@timestamp"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "C",
@@ -5611,7 +5686,8 @@
                         "timeField": "@timestamp"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -5651,7 +5727,8 @@
                         "timeField": "@timestamp"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -5691,7 +5768,8 @@
                         "timeField": "@timestamp"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "D",
@@ -5731,7 +5809,8 @@
                         "timeField": "@timestamp"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "E",
@@ -5772,7 +5851,8 @@
                         "timeField": "@timestamp"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "F",
@@ -6007,7 +6087,8 @@
                         "step": 240
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "F",
@@ -6032,7 +6113,8 @@
                         "step": 20
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -6055,7 +6137,8 @@
                         "step": 240
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -6079,7 +6162,8 @@
                         "step": 240
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "D",
@@ -6338,7 +6422,7 @@
                         "x": 0,
                         "y": 0,
                         "width": 8,
-                        "height": 7,
+                        "height": 10,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-181"
@@ -6351,7 +6435,7 @@
                         "x": 8,
                         "y": 0,
                         "width": 4,
-                        "height": 7,
+                        "height": 10,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-177"
@@ -6364,7 +6448,7 @@
                         "x": 12,
                         "y": 0,
                         "width": 4,
-                        "height": 7,
+                        "height": 10,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-206"
@@ -6377,7 +6461,7 @@
                         "x": 16,
                         "y": 0,
                         "width": 8,
-                        "height": 7,
+                        "height": 10,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-183"
@@ -6388,9 +6472,9 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 0,
-                        "y": 7,
+                        "y": 10,
                         "width": 8,
-                        "height": 8,
+                        "height": 11,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-207"
@@ -6401,9 +6485,9 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 8,
-                        "y": 7,
+                        "y": 10,
                         "width": 8,
-                        "height": 8,
+                        "height": 11,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-156"
@@ -6414,9 +6498,9 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 16,
-                        "y": 7,
+                        "y": 10,
                         "width": 8,
-                        "height": 8,
+                        "height": 11,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-174"
@@ -6427,9 +6511,9 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 0,
-                        "y": 15,
+                        "y": 21,
                         "width": 8,
-                        "height": 8,
+                        "height": 11,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-13"
@@ -6440,9 +6524,9 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 8,
-                        "y": 15,
+                        "y": 21,
                         "width": 8,
-                        "height": 8,
+                        "height": 11,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-202"
@@ -6453,9 +6537,9 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 16,
-                        "y": 15,
+                        "y": 21,
                         "width": 8,
-                        "height": 8,
+                        "height": 11,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-16"
@@ -6466,9 +6550,9 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 0,
-                        "y": 23,
+                        "y": 32,
                         "width": 6,
-                        "height": 8,
+                        "height": 11,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-160"
@@ -6479,9 +6563,9 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 6,
-                        "y": 23,
+                        "y": 32,
                         "width": 6,
-                        "height": 8,
+                        "height": 11,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-161"
@@ -6492,9 +6576,9 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 12,
-                        "y": 23,
+                        "y": 32,
                         "width": 6,
-                        "height": 8,
+                        "height": 11,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-168"
@@ -6505,9 +6589,9 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 18,
-                        "y": 23,
+                        "y": 32,
                         "width": 6,
-                        "height": 8,
+                        "height": 11,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-175"
@@ -6518,9 +6602,9 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 0,
-                        "y": 31,
+                        "y": 43,
                         "width": 16,
-                        "height": 8,
+                        "height": 11,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-158"
@@ -6531,9 +6615,9 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 16,
-                        "y": 31,
+                        "y": 43,
                         "width": 8,
-                        "height": 8,
+                        "height": 11,
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-157"
@@ -6585,7 +6669,8 @@
               "refId": "PrometheusVariableQueryEditor-VariableQuery"
             },
             "labels": {
-              "grafana.app/export-label": "prometheus-1"
+              "grafana.app/export-label": "prometheus-1",
+              "grafana.app/export-datasource-name": "Mimir Linux"
             }
           },
           "regex": "",
@@ -6620,7 +6705,8 @@
               "refId": "PrometheusVariableQueryEditor-VariableQuery"
             },
             "labels": {
-              "grafana.app/export-label": "prometheus-1"
+              "grafana.app/export-label": "prometheus-1",
+              "grafana.app/export-datasource-name": "Mimir Linux"
             }
           },
           "regex": "",
@@ -6680,7 +6766,8 @@
               "refId": "PrometheusVariableQueryEditor-VariableQuery"
             },
             "labels": {
-              "grafana.app/export-label": "prometheus-1"
+              "grafana.app/export-label": "prometheus-1",
+              "grafana.app/export-datasource-name": "Mimir Linux"
             }
           },
           "regex": "/{} (.*) .*/",
@@ -6715,7 +6802,8 @@
               "refId": "PrometheusVariableQueryEditor-VariableQuery"
             },
             "labels": {
-              "grafana.app/export-label": "prometheus-1"
+              "grafana.app/export-label": "prometheus-1",
+              "grafana.app/export-datasource-name": "Mimir Linux"
             }
           },
           "regex": "",
@@ -6750,7 +6838,8 @@
               "refId": "PrometheusVariableQueryEditor-VariableQuery"
             },
             "labels": {
-              "grafana.app/export-label": "prometheus-1"
+              "grafana.app/export-label": "prometheus-1",
+              "grafana.app/export-datasource-name": "Mimir Linux"
             }
           },
           "regex": "/.*\\\"(.*)\\\".*/",

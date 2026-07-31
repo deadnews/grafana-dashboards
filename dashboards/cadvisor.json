@@ -3,7 +3,7 @@
   "kind": "Dashboard",
   "metadata": {
     "name": "cadvisor",
-    "generation": 74,
+    "generation": 86,
     "creationTimestamp": "2026-03-24T22:48:03Z",
     "labels": {},
     "annotations": {}
@@ -53,12 +53,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_cache{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
+                        "expr": "sum(container_memory_cache{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
                         "interval": "",
                         "legendFormat": "{{name}} @ {{instance}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -214,12 +215,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name) *100",
+                        "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name) *100",
                         "interval": "",
                         "legendFormat": "{{name}} @ {{instance}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -376,14 +378,15 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(time() - label_replace(container_start_time_seconds{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}, \"version\", \"$1\", \"image\", \".*?:(.*?)(@.*)?$\"))",
+                        "expr": "(time() - label_replace(container_start_time_seconds{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}, \"version\", \"$1\", \"image\", \".*?:(.*?)(@.*)?$\"))",
                         "format": "table",
                         "instant": true,
                         "interval": "",
                         "legendFormat": "{{name}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -399,14 +402,15 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "container_health_state{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}",
+                        "expr": "container_health_state{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}",
                         "format": "table",
                         "instant": true,
                         "interval": "",
                         "legendFormat": "{{name}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -422,14 +426,15 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(container_spec_memory_limit_bytes{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"} > 0) by (name, instance)",
+                        "expr": "sum(container_spec_memory_limit_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"} > 0) by (name, instance)",
                         "format": "table",
                         "instant": true,
                         "interval": "",
                         "legendFormat": "{{name}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "C",
@@ -445,14 +450,15 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "avg_over_time(sum by (name, instance) (rate(container_cpu_usage_seconds_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}[5m]))[${__range}:5m]) * 100",
+                        "expr": "avg_over_time(sum by (name, instance) (rate(container_cpu_usage_seconds_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}[5m]))[${__range}:5m]) * 100",
                         "format": "table",
                         "instant": true,
                         "interval": "",
                         "legendFormat": "{{name}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "D",
@@ -468,17 +474,66 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "avg_over_time(sum by (name, instance) (container_memory_rss{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"})[${__range}:5m])",
+                        "expr": "avg_over_time(sum by (name, instance) (container_memory_rss{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"})[${__range}:5m])",
                         "format": "table",
                         "instant": true,
                         "interval": "",
                         "legendFormat": "{{name}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "E",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (name, instance) (changes(container_start_time_seconds{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}[${__range}]))",
+                        "format": "table",
+                        "instant": true,
+                        "interval": "",
+                        "legendFormat": "{{name}}"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
+                      }
+                    },
+                    "refId": "F",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "2 * (container_health_state{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"} == bool 0) + (container_health_state{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"} == bool 1)",
+                        "format": "table",
+                        "instant": true,
+                        "interval": "",
+                        "legendFormat": "{{name}}"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
+                      }
+                    },
+                    "refId": "G",
                     "hidden": false
                   }
                 }
@@ -508,7 +563,9 @@
                           "Value #C",
                           "Value #D",
                           "Value #E",
-                          "version"
+                          "version",
+                          "Value #F",
+                          "Value #G"
                         ]
                       }
                     }
@@ -522,11 +579,13 @@
                       "excludeByName": {},
                       "includeByName": {},
                       "indexByName": {
-                        "Value #A": 9,
-                        "Value #B": 10,
+                        "Value #A": 10,
+                        "Value #B": 11,
                         "Value #C": 8,
                         "Value #D": 6,
                         "Value #E": 7,
+                        "Value #F": 9,
+                        "Value #G": 12,
                         "container_label_com_docker_compose_project": 1,
                         "container_label_com_docker_compose_service": 3,
                         "image": 5,
@@ -540,6 +599,8 @@
                         "Value #C": "Memory Limit",
                         "Value #D": "CPU %",
                         "Value #E": "Memory",
+                        "Value #F": "Restarts",
+                        "Value #G": "Severity",
                         "container_label_com_docker_compose_project": "Project",
                         "container_label_com_docker_compose_project_working_dir": "Working dir",
                         "container_label_com_docker_compose_service": "Service",
@@ -565,6 +626,10 @@
                 "cellHeight": "sm",
                 "showHeader": true,
                 "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "Severity"
+                  },
                   {
                     "desc": true,
                     "displayName": "Memory"
@@ -595,10 +660,34 @@
                     "footer": {
                       "reducers": []
                     },
-                    "inspect": false
+                    "inspect": false,
+                    "minWidth": 80
                   }
                 },
                 "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Instance"
+                    },
+                    "properties": [
+                      {
+                        "id": "links",
+                        "value": [
+                          {
+                            "targetBlank": true,
+                            "title": "Node Exporter",
+                            "url": "/d/rYdddlPWk/node-exporter-full?var-nodename=${__value.raw}&${__url_time_range}"
+                          },
+                          {
+                            "targetBlank": true,
+                            "title": "CPU & Memory",
+                            "url": "/d/cadvisor/cadvisor-exporter?var-hostname=${__value.raw}&var-project=$__all&var-container=$__all&Details-dtab=CPU-%26-Memory&Details-CPU-%26-Memory-dtab=Combined&${__url_time_range}"
+                          }
+                        ]
+                      }
+                    ]
+                  },
                   {
                     "matcher": {
                       "id": "byName",
@@ -637,7 +726,7 @@
                       {
                         "id": "color",
                         "value": {
-                          "fixedColor": "blue",
+                          "fixedColor": "purple",
                           "mode": "fixed"
                         }
                       },
@@ -769,7 +858,55 @@
                     "properties": [
                       {
                         "id": "custom.width",
-                        "value": 280
+                        "value": 250
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Severity"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.hidden",
+                        "value": true
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Project"
+                    },
+                    "properties": [
+                      {
+                        "id": "links",
+                        "value": [
+                          {
+                            "targetBlank": true,
+                            "title": "CPU & Mem for this project",
+                            "url": "/d/cadvisor/cadvisor-exporter?var-project=${__value.raw}&var-container=$__all&Details-dtab=CPU-%26-Memory&Details-CPU-%26-Memory-dtab=Per-Host&${__url_time_range}"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Name"
+                    },
+                    "properties": [
+                      {
+                        "id": "links",
+                        "value": [
+                          {
+                            "targetBlank": true,
+                            "title": "CPU & Mem for this container",
+                            "url": "/d/cadvisor/cadvisor-exporter?var-hostname=${__data.fields[\"Instance\"]}&var-project=${__data.fields[\"Project\"]}&var-container=${__value.raw}&Details-dtab=CPU-%26-Memory&Details-CPU-%26-Memory-dtab=Combined&${__url_time_range}"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -799,13 +936,14 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(rate(container_fs_reads_bytes_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
+                        "expr": "sum(rate(container_fs_reads_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
                         "interval": "",
                         "legendFormat": "{{name}} @ {{instance}} read",
                         "range": true
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -821,13 +959,14 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(rate(container_fs_writes_bytes_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
+                        "expr": "sum(rate(container_fs_writes_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
                         "interval": "",
                         "legendFormat": "{{name}} @ {{instance}} write",
                         "range": true
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -995,11 +1134,12 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "count(container_last_seen{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) or vector(0)",
+                        "expr": "count(container_last_seen{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) or vector(0)",
                         "legendFormat": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -1014,7 +1154,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.0.1",
+            "version": "13.1.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -1069,11 +1209,12 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "((sum(rate(container_cpu_usage_seconds_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) / clamp_min(sum(machine_cpu_cores{instance=~\"$host\"}), 1)) * 100) or vector(0)",
+                        "expr": "((sum(rate(container_cpu_usage_seconds_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) / clamp_min(sum(machine_cpu_cores{instance=~\"$hostname\"}), 1)) * 100) or vector(0)",
                         "legendFormat": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -1088,7 +1229,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.0.1",
+            "version": "13.1.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -1151,11 +1292,12 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "((sum(container_memory_rss{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) / clamp_min(sum(machine_memory_bytes{instance=~\"$host\"}), 1)) * 100) or vector(0)",
+                        "expr": "((sum(container_memory_rss{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) / clamp_min(sum(machine_memory_bytes{instance=~\"$hostname\"}), 1)) * 100) or vector(0)",
                         "legendFormat": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -1170,7 +1312,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.0.1",
+            "version": "13.1.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -1233,11 +1375,12 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "(sum(rate(container_network_receive_bytes_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) + sum(rate(container_network_transmit_bytes_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m]))) or vector(0)",
+                        "expr": "(sum(rate(container_network_receive_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) + sum(rate(container_network_transmit_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m]))) or vector(0)",
                         "legendFormat": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -1252,7 +1395,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.0.1",
+            "version": "13.1.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -1308,13 +1451,14 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(container_fs_usage_bytes{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
+                        "expr": "sum(container_fs_usage_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
                         "interval": "",
                         "legendFormat": "{{name}} @ {{instance}}",
                         "range": true
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -1470,11 +1614,12 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "count(container_health_state{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"} == 0) or vector(0)",
+                        "expr": "count(container_health_state{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"} == 0) or vector(0)",
                         "legendFormat": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -1489,7 +1634,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.0.1",
+            "version": "13.1.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -1561,11 +1706,12 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "(sum(rate(container_fs_reads_bytes_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) + sum(rate(container_fs_writes_bytes_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m]))) or vector(0)",
+                        "expr": "(sum(rate(container_fs_reads_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) + sum(rate(container_fs_writes_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m]))) or vector(0)",
                         "legendFormat": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -1580,7 +1726,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.0.1",
+            "version": "13.1.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -1635,12 +1781,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name) *100",
+                        "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name) *100",
                         "interval": "",
                         "legendFormat": "{{name}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -1655,7 +1802,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.1.0",
             "spec": {
               "options": {
                 "annotations": {
@@ -1665,6 +1812,8 @@
                 "legend": {
                   "calcs": ["mean", "max"],
                   "displayMode": "table",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
@@ -1796,12 +1945,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_rss{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
+                        "expr": "sum(container_memory_rss{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -1816,7 +1966,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.1.0",
             "spec": {
               "options": {
                 "annotations": {
@@ -1826,6 +1976,8 @@
                 "legend": {
                   "calcs": ["mean", "max"],
                   "displayMode": "table",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
@@ -1957,12 +2109,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_cache{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
+                        "expr": "sum(container_memory_cache{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -1977,7 +2130,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.1.0",
             "spec": {
               "options": {
                 "annotations": {
@@ -1987,6 +2140,8 @@
                 "legend": {
                   "calcs": ["mean", "max"],
                   "displayMode": "table",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
@@ -2119,13 +2274,14 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(container_fs_usage_bytes{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
+                        "expr": "sum(container_fs_usage_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}}",
                         "range": true
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -2281,12 +2437,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_network_receive_bytes_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
+                        "expr": "sum(rate(container_network_receive_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} recv"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -2301,12 +2458,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_network_transmit_bytes_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
+                        "expr": "sum(rate(container_network_transmit_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} send"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -2481,12 +2639,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_network_receive_bytes_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
+                        "expr": "sum(rate(container_network_receive_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
                         "interval": "",
                         "legendFormat": "{{name}} @ {{instance}} recv"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -2501,12 +2660,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_network_transmit_bytes_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
+                        "expr": "sum(rate(container_network_transmit_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
                         "interval": "",
                         "legendFormat": "{{name}} @ {{instance}} send"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -2682,13 +2842,14 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(rate(container_fs_reads_bytes_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
+                        "expr": "sum(rate(container_fs_reads_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} read",
                         "range": true
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -2704,13 +2865,14 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(rate(container_fs_writes_bytes_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
+                        "expr": "sum(rate(container_fs_writes_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} write",
                         "range": true
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -2878,11 +3040,12 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) * 100",
+                        "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) * 100",
                         "legendFormat": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -2897,7 +3060,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.0.1",
+            "version": "13.1.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -2952,11 +3115,12 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_rss{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"})",
+                        "expr": "sum(container_memory_rss{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"})",
                         "legendFormat": ""
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -2971,7 +3135,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.0.1",
+            "version": "13.1.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -3026,12 +3190,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_memory_workingset_refault_anon_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
+                        "expr": "sum(rate(container_memory_workingset_refault_anon_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} anon"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -3046,12 +3211,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_memory_workingset_refault_file_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
+                        "expr": "sum(rate(container_memory_workingset_refault_file_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} file"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -3066,7 +3232,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.1.0",
             "spec": {
               "options": {
                 "annotations": {
@@ -3076,6 +3242,8 @@
                 "legend": {
                   "calcs": ["mean", "max"],
                   "displayMode": "table",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Max",
@@ -3207,12 +3375,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_memory_workingset_refault_anon_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
+                        "expr": "sum(rate(container_memory_workingset_refault_anon_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
                         "interval": "",
                         "legendFormat": "{{name}} anon @ {{instance}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -3227,12 +3396,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_memory_workingset_refault_file_total{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
+                        "expr": "sum(rate(container_memory_workingset_refault_file_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
                         "interval": "",
                         "legendFormat": "{{name}} file @ {{instance}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -3388,12 +3558,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_file_dirty_bytes{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
+                        "expr": "sum(container_memory_file_dirty_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} dirty"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -3408,12 +3579,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_file_writeback_bytes{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
+                        "expr": "sum(container_memory_file_writeback_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} writeback"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -3428,7 +3600,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.1.0",
             "spec": {
               "options": {
                 "annotations": {
@@ -3438,6 +3610,8 @@
                 "legend": {
                   "calcs": ["mean", "max"],
                   "displayMode": "table",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Max",
@@ -3569,12 +3743,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_file_dirty_bytes{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
+                        "expr": "sum(container_memory_file_dirty_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
                         "interval": "",
                         "legendFormat": "{{name}} dirty @ {{instance}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -3589,12 +3764,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_file_writeback_bytes{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
+                        "expr": "sum(container_memory_file_writeback_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
                         "interval": "",
                         "legendFormat": "{{name}} writeback @ {{instance}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "B",
@@ -3750,12 +3926,13 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_rss{instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
+                        "expr": "sum(container_memory_rss{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
                         "interval": "",
                         "legendFormat": "{{name}} @ {{instance}}"
                       },
                       "labels": {
-                        "grafana.app/export-label": "prometheus-1"
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
                       }
                     },
                     "refId": "A",
@@ -4070,12 +4247,12 @@
                                           "kind": "GridLayoutItem",
                                           "spec": {
                                             "x": 0,
-                                            "y": 24,
-                                            "width": 12,
+                                            "y": 16,
+                                            "width": 24,
                                             "height": 8,
                                             "element": {
                                               "kind": "ElementReference",
-                                              "name": "panel-37"
+                                              "name": "panel-43"
                                             }
                                           }
                                         },
@@ -4083,12 +4260,12 @@
                                           "kind": "GridLayoutItem",
                                           "spec": {
                                             "x": 0,
-                                            "y": 16,
-                                            "width": 24,
+                                            "y": 24,
+                                            "width": 12,
                                             "height": 8,
                                             "element": {
                                               "kind": "ElementReference",
-                                              "name": "panel-43"
+                                              "name": "panel-37"
                                             }
                                           }
                                         },
@@ -4148,12 +4325,12 @@
                                           "kind": "GridLayoutItem",
                                           "spec": {
                                             "x": 0,
-                                            "y": 24,
-                                            "width": 12,
+                                            "y": 16,
+                                            "width": 24,
                                             "height": 8,
                                             "element": {
                                               "kind": "ElementReference",
-                                              "name": "panel-14"
+                                              "name": "panel-44"
                                             }
                                           }
                                         },
@@ -4161,12 +4338,12 @@
                                           "kind": "GridLayoutItem",
                                           "spec": {
                                             "x": 0,
-                                            "y": 16,
-                                            "width": 24,
+                                            "y": 24,
+                                            "width": 12,
                                             "height": 8,
                                             "element": {
                                               "kind": "ElementReference",
-                                              "name": "panel-44"
+                                              "name": "panel-14"
                                             }
                                           }
                                         },
@@ -4373,7 +4550,7 @@
       {
         "kind": "QueryVariable",
         "spec": {
-          "name": "host",
+          "name": "hostname",
           "current": {
             "text": "",
             "value": ""
@@ -4391,7 +4568,8 @@
               "refId": "Prometheus-host-Variable-Query"
             },
             "labels": {
-              "grafana.app/export-label": "prometheus-1"
+              "grafana.app/export-label": "prometheus-1",
+              "grafana.app/export-datasource-name": "Mimir Linux"
             }
           },
           "regex": "",
@@ -4422,17 +4600,18 @@
             "group": "prometheus",
             "version": "v0",
             "spec": {
-              "query": "label_values({__name__=~\"container.*\", instance=~\"$host\"},container_label_com_docker_compose_project)",
+              "query": "label_values({__name__=~\"container.*\", instance=~\"$hostname\"},container_label_com_docker_compose_project)",
               "refId": "Prometheus-project-Variable-Query"
             },
             "labels": {
-              "grafana.app/export-label": "prometheus-1"
+              "grafana.app/export-label": "prometheus-1",
+              "grafana.app/export-datasource-name": "Mimir Linux"
             }
           },
           "regex": "",
           "regexApplyTo": "value",
           "sort": "disabled",
-          "definition": "label_values({__name__=~\"container.*\", instance=~\"$host\"},container_label_com_docker_compose_project)",
+          "definition": "label_values({__name__=~\"container.*\", instance=~\"$hostname\"},container_label_com_docker_compose_project)",
           "options": [],
           "multi": true,
           "includeAll": true,
@@ -4457,17 +4636,18 @@
             "group": "prometheus",
             "version": "v0",
             "spec": {
-              "query": "label_values({__name__=~\"container.*\", instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\"},name)",
+              "query": "label_values({__name__=~\"container.*\", instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\"},name)",
               "refId": "Prometheus-container-Variable-Query"
             },
             "labels": {
-              "grafana.app/export-label": "prometheus-1"
+              "grafana.app/export-label": "prometheus-1",
+              "grafana.app/export-datasource-name": "Mimir Linux"
             }
           },
           "regex": "",
           "regexApplyTo": "value",
           "sort": "disabled",
-          "definition": "label_values({__name__=~\"container.*\", instance=~\"$host\", container_label_com_docker_compose_project=~\"$project\"},name)",
+          "definition": "label_values({__name__=~\"container.*\", instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\"},name)",
           "options": [],
           "multi": true,
           "includeAll": true,
