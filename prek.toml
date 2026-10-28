@@ -17,21 +17,21 @@ hooks = [
 
 [[repos]]
 repo = "https://github.com/rbubley/mirrors-prettier"
-rev = "0ee178619d696787ca73d210cc191d720868c631" # frozen: v3.9.6
+rev = "331f33fa4dfbcbca7c3da3620c137fde0faab273" # frozen: v3.9.10
 hooks = [
   { id = "prettier" },
 ]
 
 [[repos]]
 repo = "https://github.com/crate-ci/typos"
-rev = "bee27e3a4fd1ea2111cf90ab89cd076c870fce14" # frozen: v1.48.0
+rev = "7f9d0819ca1c008ade73f4b41fa9d258d48f605b" # frozen: v1.51.1
 hooks = [
   { id = "typos" },
 ]
 
 [[repos]]
 repo = "https://github.com/python-jsonschema/check-jsonschema"
-rev = "6b63472e72e1a91ed8a2f6d483790dfb644fa1d3" # frozen: 0.37.4
+rev = "a76b92851fc9eede9f9bc4073eb55202f34eb0df" # frozen: 0.39.0
 hooks = [
   { id = "check-github-workflows" },
   { id = "check-renovate" },
