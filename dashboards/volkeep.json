@@ -3,7 +3,7 @@
   "kind": "Dashboard",
   "metadata": {
     "name": "volkeep",
-    "generation": 87,
+    "generation": 124,
     "creationTimestamp": "2026-07-15T09:17:31Z",
     "labels": {},
     "annotations": {}
@@ -31,15 +31,15 @@
       }
     ],
     "cursorSync": "Crosshair",
-    "description": "volkeep backup daemon: pass outcomes, durations, and failures across the fleet.",
+    "description": "volkeep backup daemon for Docker volumes.",
     "editable": true,
     "elements": {
       "panel-1": {
         "kind": "Panel",
         "spec": {
           "id": 1,
-          "title": "Active Hosts",
-          "description": "Hosts with a successful backup in the last 36 h — a fixed window, not the selected range.",
+          "title": "Active hosts",
+          "description": "Hosts with a successful backup.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -55,7 +55,7 @@
                       "spec": {
                         "direction": "backward",
                         "editorMode": "code",
-                        "expr": "count(count by (hostname) (count_over_time({syslog_id=\"docker/volkeep\", hostname=~\"$hostname\"} |= `msg=\"Backup finished\"` [36h])))",
+                        "expr": "count(count by (hostname) (count_over_time({syslog_id=\"docker/volkeep\", hostname=~\"$hostname\"} |= `msg=\"Backup finished\"` [$__range])))",
                         "legendFormat": "Hosts",
                         "queryType": "range"
                       },
@@ -76,7 +76,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -90,6 +90,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -125,36 +128,13 @@
         "kind": "Panel",
         "spec": {
           "id": 13,
-          "title": "Repo Overview",
-          "description": "Snapshots in repo is current inventory, ≈ retention days (same-day snapshots collapse under keep-daily). Logical = uncompressed, physical = on-disk; Added in range = packed bytes written, before prune.",
+          "title": "",
+          "description": "- Snapshots in repo — current inventory, ≈ retention days; same-day snapshots collapse under `keep-daily`\n- Logical — uncompressed size\n- Physical — on-disk size\n- Added in range — packed bytes written, before prune",
           "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
               "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "count by (hostname) (label_replace(node_uname_info{job=\"integrations/unix\", nodename=~\"$hostname\"}, \"hostname\", \"$1\", \"nodename\", \"(.*)\"))",
-                        "instant": true,
-                        "legendFormat": "__auto",
-                        "range": false
-                      },
-                      "labels": {
-                        "grafana.app/export-label": "prometheus-1",
-                        "grafana.app/export-datasource-name": "Mimir Linux"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                },
                 {
                   "kind": "PanelQuery",
                   "spec": {
@@ -359,8 +339,7 @@
                         "Time 6": true,
                         "Time 7": true,
                         "Time 8": true,
-                        "Time 9": true,
-                        "Value #A": true
+                        "Time 9": true
                       },
                       "indexByName": {
                         "Value #B": 3,
@@ -377,7 +356,7 @@
                         "Value #B": "Backups in range",
                         "Value #C": "Physical size",
                         "Value #D": "Snapshots in repo",
-                        "Value #E": "Last pass",
+                        "Value #E": "Last pass duration",
                         "Value #F": "Compression",
                         "Value #G": "Logical size",
                         "Value #H": "Last success",
@@ -394,7 +373,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "table",
-            "version": "13.1.0",
+            "version": "13.2.3",
             "spec": {
               "options": {
                 "cellHeight": "sm",
@@ -426,7 +405,7 @@
                     "cellOptions": {
                       "type": "auto"
                     },
-                    "filterable": true,
+                    "filterable": false,
                     "footer": {
                       "reducers": []
                     },
@@ -446,8 +425,8 @@
                         "value": [
                           {
                             "targetBlank": true,
-                            "title": "Node Exporter",
-                            "url": "/d/rYdddlPWk/node-exporter-full?var-nodename=${__value.raw}&${__url_time_range}"
+                            "title": "Host dashboard",
+                            "url": "/d/hosts/hosts?dtab=Host&var-hostname=${__value.raw}&${__url_time_range}"
                           }
                         ]
                       }
@@ -522,7 +501,7 @@
                   {
                     "matcher": {
                       "id": "byName",
-                      "options": "Last pass"
+                      "options": "Last pass duration"
                     },
                     "properties": [
                       {
@@ -644,8 +623,8 @@
         "kind": "Panel",
         "spec": {
           "id": 14,
-          "title": "Recent Backups",
-          "description": "One row per volume backup. Size = data read (logical); Added = new data before compression, – = unchanged; Stopped / Exec = container stopped / pre-hook ran ",
+          "title": "",
+          "description": "One row per volume backup.\n\n- Size — data read, logical\n- Added — new data before compression; – is unchanged\n- Stopped / Exec — container stopped, pre-hook ran",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -661,7 +640,7 @@
                       "spec": {
                         "direction": "backward",
                         "editorMode": "code",
-                        "expr": "{syslog_id=\"docker/volkeep\", hostname=~\"$hostname\"} |~ `msg=\"Backup (finished|failed|completed)` | logfmt | keep hostname, volume, duration_ms, exit, msg, bytes_processed, data_added, stopped, exec",
+                        "expr": "{syslog_id=\"docker/volkeep\", hostname=~\"$hostname\"} |~ `msg=\"Backup (finished|failed|completed)` | logfmt | volume=~`$volume` | keep hostname, volume, duration_ms, exit, msg, bytes_processed, data_added, stopped, exec, snapshot_id",
                         "maxLines": 2000,
                         "queryType": "range"
                       },
@@ -723,15 +702,16 @@
                       },
                       "indexByName": {
                         "Time": 0,
-                        "bytes_processed": 5,
-                        "data_added": 6,
-                        "duration_ms": 4,
-                        "exec": 8,
-                        "exit": 9,
-                        "hostname": 1,
-                        "msg": 3,
-                        "stopped": 7,
-                        "volume": 2
+                        "bytes_processed": 6,
+                        "data_added": 7,
+                        "duration_ms": 5,
+                        "exec": 9,
+                        "exit": 10,
+                        "hostname": 2,
+                        "msg": 4,
+                        "snapshot_id": 1,
+                        "stopped": 8,
+                        "volume": 3
                       },
                       "renameByName": {
                         "Time": "Time",
@@ -742,6 +722,7 @@
                         "exit": "Exit",
                         "hostname": "Host",
                         "msg": "Status",
+                        "snapshot_id": "Snapshot",
                         "stopped": "Stopped",
                         "volume": "Volume"
                       }
@@ -806,7 +787,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "table",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "cellHeight": "sm",
@@ -816,7 +797,8 @@
                     "desc": true,
                     "displayName": "Time"
                   }
-                ]
+                ],
+                "zebraStriping": false
               },
               "fieldConfig": {
                 "defaults": {
@@ -838,7 +820,7 @@
                     "cellOptions": {
                       "type": "auto"
                     },
-                    "filterable": true,
+                    "filterable": false,
                     "footer": {
                       "reducers": []
                     },
@@ -850,6 +832,22 @@
                   {
                     "matcher": {
                       "id": "byName",
+                      "options": "Time"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 180
+                      },
+                      {
+                        "id": "unit",
+                        "value": "time:YYYY-MM-DD HH:mm:ss"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
                       "options": "Host"
                     },
                     "properties": [
@@ -858,10 +856,14 @@
                         "value": [
                           {
                             "targetBlank": true,
-                            "title": "Node Exporter",
-                            "url": "/d/rYdddlPWk/node-exporter-full?var-nodename=${__value.raw}&${__url_time_range}"
+                            "title": "Host dashboard",
+                            "url": "/d/hosts/hosts?dtab=Host&var-hostname=${__value.raw}&${__url_time_range}"
                           }
                         ]
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
                       }
                     ]
                   },
@@ -880,6 +882,10 @@
                             "url": "/d/volkeep/volkeep?details-dtab=volumes&var-hostname=${__data.fields[\"Host\"]}&var-volume=${__data.fields[\"Volume\"]}&${__url_time_range}"
                           }
                         ]
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
                       }
                     ]
                   },
@@ -937,6 +943,10 @@
                       {
                         "id": "custom.width",
                         "value": 90
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
                       }
                     ]
                   },
@@ -985,6 +995,10 @@
                       {
                         "id": "decimals",
                         "value": 1
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 110
                       }
                     ]
                   },
@@ -997,6 +1011,10 @@
                       {
                         "id": "unit",
                         "value": "bytes"
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 110
                       }
                     ]
                   },
@@ -1023,6 +1041,10 @@
                             "type": "value"
                           }
                         ]
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 110
                       }
                     ]
                   },
@@ -1057,6 +1079,10 @@
                       {
                         "id": "custom.width",
                         "value": 90
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
                       }
                     ]
                   },
@@ -1071,17 +1097,13 @@
                         "value": [
                           {
                             "options": {
+                              "-1": {
+                                "index": 7,
+                                "text": "aborted (-1)"
+                              },
                               "1": {
                                 "index": 0,
                                 "text": "error (1)"
-                              },
-                              "2": {
-                                "index": 1,
-                                "text": "runtime (2)"
-                              },
-                              "3": {
-                                "index": 2,
-                                "text": "partial (3)"
                               },
                               "10": {
                                 "index": 3,
@@ -1098,6 +1120,14 @@
                               "130": {
                                 "index": 6,
                                 "text": "interrupted (130)"
+                              },
+                              "2": {
+                                "index": 1,
+                                "text": "runtime (2)"
+                              },
+                              "3": {
+                                "index": 2,
+                                "text": "partial (3)"
                               }
                             },
                             "type": "value"
@@ -1106,7 +1136,11 @@
                       },
                       {
                         "id": "custom.width",
-                        "value": 120
+                        "value": 140
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
                       }
                     ]
                   },
@@ -1141,6 +1175,22 @@
                       {
                         "id": "custom.width",
                         "value": 90
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Snapshot"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 110
                       }
                     ]
                   },
@@ -1179,7 +1229,7 @@
         "spec": {
           "id": 15,
           "title": "Backups",
-          "description": "All volume backups in range, failures included.",
+          "description": "All volume backups, failures included.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1215,10 +1265,10 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
-                "colorMode": "none",
+                "colorMode": "value",
                 "graphMode": "area",
                 "justifyMode": "auto",
                 "orientation": "auto",
@@ -1229,6 +1279,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -1260,7 +1313,7 @@
         "kind": "Panel",
         "spec": {
           "id": 17,
-          "title": "Volume Size",
+          "title": "Volume size",
           "description": "Logical size of the backed-up data per volume.",
           "links": [],
           "data": {
@@ -1278,7 +1331,7 @@
                         "direction": "backward",
                         "editorMode": "code",
                         "expr": "max by (hostname, volume) (max_over_time({syslog_id=\"docker/volkeep\", hostname=~\"$hostname\"} |= `msg=\"Backup finished\"` | logfmt | volume=~`$volume` | unwrap bytes_processed [$__interval]))",
-                        "legendFormat": "{{volume}} @ {{hostname}}",
+                        "legendFormat": "{{volume}} · {{hostname}}",
                         "queryType": "range"
                       },
                       "labels": {
@@ -1298,7 +1351,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.0",
+            "version": "13.2.3",
             "spec": {
               "options": {
                 "annotations": {
@@ -1386,7 +1439,7 @@
         "kind": "Panel",
         "spec": {
           "id": 19,
-          "title": "Pass Duration",
+          "title": "Pass duration",
           "description": "Whole pass per host: all volumes plus forget/sweep/prune/check.",
           "links": [],
           "data": {
@@ -1424,7 +1477,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.0",
+            "version": "13.2.3",
             "spec": {
               "options": {
                 "annotations": {
@@ -1432,15 +1485,15 @@
                   "multiLane": false
                 },
                 "legend": {
-                  "calcs": ["lastNotNull"],
+                  "calcs": ["mean", "lastNotNull"],
                   "displayMode": "table",
                   "enableFacetedFilter": false,
                   "overflow": "ellipsis",
                   "placement": "right",
                   "showLegend": true,
-                  "sortBy": "Last *",
+                  "sortBy": "Mean",
                   "sortDesc": true,
-                  "width": 240
+                  "width": 300
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -1512,7 +1565,7 @@
         "kind": "Panel",
         "spec": {
           "id": 20,
-          "title": "Backup Duration by Volume",
+          "title": "Backup duration by volume",
           "description": "Failed backups excluded.",
           "links": [],
           "data": {
@@ -1530,7 +1583,7 @@
                         "direction": "backward",
                         "editorMode": "code",
                         "expr": "avg by (hostname, volume) (avg_over_time({syslog_id=\"docker/volkeep\", hostname=~\"$hostname\"} |= `msg=\"Backup finished\"` | logfmt | volume=~`$volume` | unwrap duration_ms [$__interval]))",
-                        "legendFormat": "{{volume}} @ {{hostname}}",
+                        "legendFormat": "{{volume}} · {{hostname}}",
                         "queryType": "range"
                       },
                       "labels": {
@@ -1550,7 +1603,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.0",
+            "version": "13.2.3",
             "spec": {
               "options": {
                 "annotations": {
@@ -1637,7 +1690,7 @@
         "kind": "Panel",
         "spec": {
           "id": 21,
-          "title": "Repository Size",
+          "title": "Repository size",
           "description": "Physical (on-disk) repository size per host.",
           "links": [],
           "data": {
@@ -1675,7 +1728,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.0",
+            "version": "13.2.3",
             "spec": {
               "options": {
                 "annotations": {
@@ -1766,7 +1819,7 @@
         "kind": "Panel",
         "spec": {
           "id": 22,
-          "title": "Total Repo Size",
+          "title": "Total repo size",
           "description": "Latest known physical repository size per host (2 d lookback), summed.",
           "links": [],
           "data": {
@@ -1803,10 +1856,10 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
-                "colorMode": "none",
+                "colorMode": "value",
                 "graphMode": "area",
                 "justifyMode": "auto",
                 "orientation": "auto",
@@ -1817,6 +1870,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -1848,8 +1904,8 @@
         "kind": "Panel",
         "spec": {
           "id": 23,
-          "title": "Daemon Log",
-          "description": "Every daemon line, or errors only via the Errors only switch. Worker (restic) stdout is a separate stream, not shown.",
+          "title": "",
+          "description": "Every daemon line, or errors only via the Errors only switch. Worker (`restic`) stdout is a separate stream.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1886,13 +1942,14 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "logs",
-            "version": "13.1.0",
+            "version": "13.2.3",
             "spec": {
               "options": {
                 "controlsStorageKey": "volkeep-daemon-log",
                 "dedupStrategy": "none",
                 "enableInfiniteScrolling": true,
                 "enableLogDetails": true,
+                "fontSize": "default",
                 "prettifyLogMessage": false,
                 "showCommonLabels": false,
                 "showControls": true,
@@ -1901,6 +1958,7 @@
                 "showLevel": true,
                 "showTime": true,
                 "sortOrder": "Descending",
+                "syntaxHighlighting": true,
                 "timestampResolution": "ms",
                 "unwrappedColumns": false,
                 "wrapLogMessage": true
@@ -1917,8 +1975,8 @@
         "kind": "Panel",
         "spec": {
           "id": 24,
-          "title": "Passes Over Time",
-          "description": "Whole-host backup passes per interval, split by trigger. The trigger attr ships with the pass-counters build; earlier passes do not chart.",
+          "title": "Passes by trigger",
+          "description": "Whole-host backup passes by trigger. A pass that reports no trigger does not chart.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1978,7 +2036,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.0",
+            "version": "13.2.3",
             "spec": {
               "options": {
                 "annotations": {
@@ -2097,8 +2155,8 @@
         "kind": "Panel",
         "spec": {
           "id": 25,
-          "title": "Recent Passes",
-          "description": "One row per whole-host pass. Failed counts volumes not backed up. Rows before the pass-counters build carry only Finished, Host, and Duration.",
+          "title": "",
+          "description": "One row per whole-host pass. Failed counts volumes not backed up. A pass that reports no counters fills only Finished, Host and Duration.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2311,7 +2369,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "table",
-            "version": "13.1.0",
+            "version": "13.2.3",
             "spec": {
               "options": {
                 "cellHeight": "sm",
@@ -2343,7 +2401,7 @@
                     "cellOptions": {
                       "type": "auto"
                     },
-                    "filterable": true,
+                    "filterable": false,
                     "footer": {
                       "reducers": []
                     },
@@ -2363,10 +2421,14 @@
                         "value": [
                           {
                             "targetBlank": true,
-                            "title": "Node Exporter",
-                            "url": "/d/rYdddlPWk/node-exporter-full?var-nodename=${__value.raw}&from=${__data.fields[\"NeStartMs\"]}&to=${__data.fields[\"NeEndMs\"]}"
+                            "title": "Host dashboard",
+                            "url": "/d/hosts/hosts?dtab=Host&var-hostname=${__value.raw}&from=${__data.fields[\"NeStartMs\"]}&to=${__data.fields[\"NeEndMs\"]}"
                           }
                         ]
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
                       }
                     ]
                   },
@@ -2443,6 +2505,10 @@
                       {
                         "id": "custom.width",
                         "value": 90
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
                       }
                     ]
                   },
@@ -2601,7 +2667,7 @@
         "spec": {
           "id": 26,
           "title": "Passes",
-          "description": "Whole-host backup passes in range.",
+          "description": "Whole-host backup passes.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2637,10 +2703,10 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
-                "colorMode": "none",
+                "colorMode": "value",
                 "graphMode": "area",
                 "justifyMode": "auto",
                 "orientation": "auto",
@@ -2651,6 +2717,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -2682,8 +2751,8 @@
         "kind": "Panel",
         "spec": {
           "id": 27,
-          "title": "Failure Rate",
-          "description": "Failed share of volume backups over the trailing 24 h.",
+          "title": "Failure rate",
+          "description": "Failed share of volume backups.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2699,7 +2768,7 @@
                       "spec": {
                         "direction": "backward",
                         "editorMode": "code",
-                        "expr": "100 * sum(count_over_time({syslog_id=\"docker/volkeep\", hostname=~\"$hostname\"} |= `msg=\"Backup failed\"` [1d])) / sum(count_over_time({syslog_id=\"docker/volkeep\", hostname=~\"$hostname\"} |~ `msg=\"Backup (finished|failed|completed)` [1d]))",
+                        "expr": "100 * (sum(count_over_time({syslog_id=\"docker/volkeep\", hostname=~\"$hostname\"} |= `msg=\"Backup failed\"` [$__range])) or vector(0)) / sum(count_over_time({syslog_id=\"docker/volkeep\", hostname=~\"$hostname\"} |~ `msg=\"Backup (finished|failed|completed)` [$__range]))",
                         "queryType": "range"
                       },
                       "labels": {
@@ -2719,7 +2788,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -2733,6 +2802,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -2740,6 +2812,7 @@
                 "defaults": {
                   "unit": "percent",
                   "decimals": 1,
+                  "min": 0,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -2773,7 +2846,7 @@
         "spec": {
           "id": 3,
           "title": "Errors",
-          "description": "All ERROR-level daemon events in range (backup, forget, sweep, prune, check, exec).",
+          "description": "All ERROR-level daemon events (backup, forget, sweep, prune, check, exec).",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2810,7 +2883,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -2824,6 +2897,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -2897,7 +2973,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -2911,6 +2987,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -2946,8 +3025,8 @@
         "kind": "Panel",
         "spec": {
           "id": 5,
-          "title": "Check Failures",
-          "description": "Repository integrity checks that failed in range.",
+          "title": "Check failures",
+          "description": "Repository integrity checks that failed.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2984,7 +3063,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -2998,6 +3077,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -3033,8 +3115,8 @@
         "kind": "Panel",
         "spec": {
           "id": 7,
-          "title": "Backups Over Time",
-          "description": "Volume backups per interval.",
+          "title": "",
+          "description": "",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3050,8 +3132,8 @@
                       "spec": {
                         "direction": "backward",
                         "editorMode": "code",
-                        "expr": "sum(count_over_time({syslog_id=\"docker/volkeep\", hostname=~\"$hostname\"} |= `msg=\"Backup finished\"` [$__interval]))",
-                        "legendFormat": "Succeeded",
+                        "expr": "sum by (detected_level) (count_over_time({syslog_id=\"docker/volkeep\", hostname=~\"$hostname\"} | logfmt level | level=~`$errors_only` [$__interval]))",
+                        "legendFormat": "{{detected_level}}",
                         "queryType": "range"
                       },
                       "labels": {
@@ -3062,39 +3144,18 @@
                     "refId": "A",
                     "hidden": false
                   }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "loki",
-                      "version": "v0",
-                      "spec": {
-                        "direction": "backward",
-                        "editorMode": "code",
-                        "expr": "sum(count_over_time({syslog_id=\"docker/volkeep\", hostname=~\"$hostname\"} |= `msg=\"Backup failed\"` [$__interval]))",
-                        "legendFormat": "Failed",
-                        "queryType": "range"
-                      },
-                      "labels": {
-                        "grafana.app/export-label": "loki-1",
-                        "grafana.app/export-datasource-name": "Loki Linux"
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
                 }
               ],
               "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {
+                "maxDataPoints": 200
+              }
             }
           },
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.0",
+            "version": "13.2.3",
             "spec": {
               "options": {
                 "annotations": {
@@ -3102,14 +3163,10 @@
                   "multiLane": false
                 },
                 "legend": {
-                  "calcs": ["sum"],
-                  "displayMode": "table",
-                  "enableFacetedFilter": false,
-                  "overflow": "ellipsis",
-                  "placement": "right",
-                  "showLegend": true,
-                  "sortBy": "Total",
-                  "sortDesc": true
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": false
                 },
                 "tooltip": {
                   "hideZeros": true,
@@ -3144,9 +3201,9 @@
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "barAlignment": 0,
-                    "barWidthFactor": 0.6,
+                    "barWidthFactor": 0.8,
                     "drawStyle": "bars",
-                    "fillOpacity": 80,
+                    "fillOpacity": 100,
                     "gradientMode": "none",
                     "hideFrom": {
                       "legend": false,
@@ -3155,7 +3212,7 @@
                     },
                     "insertNulls": false,
                     "lineInterpolation": "linear",
-                    "lineWidth": 1,
+                    "lineWidth": 0,
                     "pointSize": 5,
                     "scaleDistribution": {
                       "type": "linear"
@@ -3176,7 +3233,7 @@
                   {
                     "matcher": {
                       "id": "byName",
-                      "options": "Succeeded"
+                      "options": "info"
                     },
                     "properties": [
                       {
@@ -3191,13 +3248,73 @@
                   {
                     "matcher": {
                       "id": "byName",
-                      "options": "Failed"
+                      "options": "warn"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "orange",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "error"
                     },
                     "properties": [
                       {
                         "id": "color",
                         "value": {
                           "fixedColor": "red",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "fatal"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "dark-red",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "debug"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "blue",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "unknown"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "#6E7079",
                           "mode": "fixed"
                         }
                       }
@@ -3355,7 +3472,7 @@
                                   "x": 0,
                                   "y": 0,
                                   "width": 24,
-                                  "height": 17,
+                                  "height": 19,
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-14"
@@ -3381,7 +3498,7 @@
                                   "x": 0,
                                   "y": 0,
                                   "width": 12,
-                                  "height": 17,
+                                  "height": 19,
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-20"
@@ -3394,7 +3511,7 @@
                                   "x": 12,
                                   "y": 0,
                                   "width": 12,
-                                  "height": 17,
+                                  "height": 19,
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-17"
@@ -3433,7 +3550,7 @@
                                   "x": 0,
                                   "y": 11,
                                   "width": 12,
-                                  "height": 6,
+                                  "height": 8,
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-24"
@@ -3446,7 +3563,7 @@
                                   "x": 12,
                                   "y": 11,
                                   "width": 12,
-                                  "height": 6,
+                                  "height": 8,
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-19"
@@ -3485,7 +3602,7 @@
                                   "x": 0,
                                   "y": 11,
                                   "width": 24,
-                                  "height": 6,
+                                  "height": 8,
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-21"
@@ -3511,7 +3628,7 @@
                                   "x": 0,
                                   "y": 0,
                                   "width": 24,
-                                  "height": 4,
+                                  "height": 3,
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-7"
@@ -3522,9 +3639,9 @@
                                 "kind": "GridLayoutItem",
                                 "spec": {
                                   "x": 0,
-                                  "y": 4,
+                                  "y": 3,
                                   "width": 24,
-                                  "height": 13,
+                                  "height": 16,
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-23"
@@ -3547,7 +3664,7 @@
     "links": [],
     "liveNow": false,
     "preload": false,
-    "tags": ["volkeep", "backup", "restic"],
+    "tags": ["docker"],
     "timeSettings": {
       "timezone": "browser",
       "from": "now-2d",
@@ -3568,7 +3685,7 @@
       "hideTimepicker": false,
       "fiscalYearStartMonth": 0
     },
-    "title": "volkeep",
+    "title": "Volkeep",
     "variables": [
       {
         "kind": "QueryVariable",
@@ -3650,9 +3767,9 @@
         "kind": "SwitchVariable",
         "spec": {
           "name": "errors_only",
-          "current": ".+",
+          "current": "ERROR|WARN|CRITICAL",
           "enabledValue": "ERROR|WARN|CRITICAL",
-          "disabledValue": ".+",
+          "disabledValue": ".*",
           "label": "Errors only",
           "hide": "dontHide",
           "skipUrlSync": false,

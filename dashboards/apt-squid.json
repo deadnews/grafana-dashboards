@@ -1,0 +1,2759 @@
+{
+  "apiVersion": "dashboard.grafana.app/v2",
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "apt-squid",
+    "generation": 20,
+    "creationTimestamp": "2026-09-04T00:45:13Z",
+    "labels": {},
+    "annotations": {}
+  },
+  "spec": {
+    "annotations": [
+      {
+        "kind": "AnnotationQuery",
+        "spec": {
+          "query": {
+            "kind": "DataQuery",
+            "group": "grafana",
+            "version": "v0",
+            "spec": {
+              "limit": 100,
+              "matchAny": false,
+              "tags": [],
+              "type": "dashboard"
+            },
+            "labels": {
+              "grafana.app/export-label": "grafana-1"
+            }
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "builtIn": true
+        }
+      }
+    ],
+    "cursorSync": "Crosshair",
+    "description": "Caching proxy for APT package downloads.",
+    "editable": true,
+    "elements": {
+      "panel-1": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1,
+          "title": "Hit ratio",
+          "description": "Cacheable requests only: denied and tunnelled (`CONNECT`) requests are outside the ratio.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*HIT.*|TCP_REFRESH_UNMODIFIED.*` [$__range]))\n/\n(sum(count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*` | action!~`TCP_DENIED.*|TCP_TUNNEL.*` [$__range])) > 0)",
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.3.0",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": ["lastNotNull"],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "percentunit",
+                  "decimals": 1,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "text"
+                      },
+                      {
+                        "value": 0.3,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 0.6,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "noValue": "Idle"
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-10": {
+        "kind": "Panel",
+        "spec": {
+          "id": 10,
+          "title": "Requests by cache action",
+          "description": "Denied requests are on the Denials tab.\n\n- `TCP_MEM_HIT`, `TCP_HIT` — served from memory or disk\n- `TCP_REFRESH_UNMODIFIED` — revalidated upstream, cached copy reused\n- `TCP_MISS`, `TCP_REFRESH_MODIFIED` — fetched fresh bytes\n- `TCP_TUNNEL` — `CONNECT` passthrough, never cached\n- `NONE_NONE` — the proxy could not parse the request",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (action) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action!~`TCP_DENIED.*` [$__auto]))",
+                        "legendFormat": "{{action}}",
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {
+                "maxDataPoints": 200,
+                "interval": "5m"
+              }
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.2.1",
+            "spec": {
+              "options": {
+                "legend": {
+                  "calcs": ["sum"],
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Total",
+                  "sortDesc": true,
+                  "width": 340
+                },
+                "tooltip": {
+                  "hideZeros": true,
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "none",
+                  "decimals": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "bars",
+                    "fillOpacity": 70,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "normal"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byRegexp",
+                      "options": ".*HIT.*"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "green",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byRegexp",
+                      "options": ".*MEM_HIT.*"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "semi-dark-green",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byRegexp",
+                      "options": ".*REFRESH_UNMODIFIED.*"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "light-green",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byRegexp",
+                      "options": ".*MISS.*"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "blue",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byRegexp",
+                      "options": ".*REFRESH_MODIFIED.*"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "light-blue",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byRegexp",
+                      "options": ".*TUNNEL.*"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "purple",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byRegexp",
+                      "options": "NONE_.*"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "orange",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "panel-11": {
+        "kind": "Panel",
+        "spec": {
+          "id": 11,
+          "title": "Bytes served vs fetched",
+          "description": "Bytes sent downstream, split by whether the cache answered.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(sum_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*HIT.*|TCP_REFRESH_UNMODIFIED.*` | unwrap size | __error__=\"\" [$__auto]))",
+                        "legendFormat": "From cache",
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(sum_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*` | action!~`TCP_DENIED.*|TCP_TUNNEL.*` | action!~`TCP_.*HIT.*|TCP_REFRESH_UNMODIFIED.*` | unwrap size | __error__=\"\" [$__auto]))",
+                        "legendFormat": "From upstream",
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "B",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {
+                "maxDataPoints": 200,
+                "interval": "5m"
+              }
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.2.1",
+            "spec": {
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": true,
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "bytes",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "bars",
+                    "fillOpacity": 70,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "normal"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "From cache"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "green",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "From upstream"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "blue",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "panel-12": {
+        "kind": "Panel",
+        "spec": {
+          "id": 12,
+          "title": "Destination summary",
+          "description": "Cacheable traffic per mirror; `CONNECT` tunnels excluded.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (dsthost) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*` | action!~`TCP_DENIED.*|TCP_TUNNEL.*` [$__range]))",
+                        "queryType": "instant"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "(\n(\nsum by (dsthost) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*HIT.*|TCP_REFRESH_UNMODIFIED.*` [$__range]))\n)\nor\n(sum by (dsthost) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*` | action!~`TCP_DENIED.*|TCP_TUNNEL.*` [$__range])) * 0)\n)\n/\nsum by (dsthost) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*` | action!~`TCP_DENIED.*|TCP_TUNNEL.*` [$__range]))",
+                        "queryType": "instant"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "B",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "(\nsum by (dsthost) (sum_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*HIT.*|TCP_REFRESH_UNMODIFIED.*` | unwrap size | __error__=\"\" [$__range]))\n)\nor\n(sum by (dsthost) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*` | action!~`TCP_DENIED.*|TCP_TUNNEL.*` [$__range])) * 0)",
+                        "queryType": "instant"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "C",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "(\nsum by (dsthost) (sum_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*` | action!~`TCP_DENIED.*|TCP_TUNNEL.*` | action!~`TCP_.*HIT.*|TCP_REFRESH_UNMODIFIED.*` | unwrap size | __error__=\"\" [$__range]))\n)\nor\n(sum by (dsthost) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*` | action!~`TCP_DENIED.*|TCP_TUNNEL.*` [$__range])) * 0)",
+                        "queryType": "instant"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "D",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [
+                {
+                  "kind": "Transformation",
+                  "group": "joinByField",
+                  "spec": {
+                    "options": {
+                      "byField": "dsthost",
+                      "mode": "outer"
+                    }
+                  }
+                },
+                {
+                  "kind": "Transformation",
+                  "group": "organize",
+                  "spec": {
+                    "options": {
+                      "excludeByName": {
+                        "Time": true,
+                        "Time 1": true,
+                        "Time 2": true,
+                        "Time 3": true,
+                        "Time 4": true,
+                        "Time 5": true
+                      },
+                      "indexByName": {
+                        "Value #A": 1,
+                        "Value #B": 2,
+                        "Value #C": 3,
+                        "Value #D": 4,
+                        "dsthost": 0
+                      },
+                      "renameByName": {
+                        "Value #A": "Requests",
+                        "Value #B": "Hit Ratio",
+                        "Value #C": "From Cache",
+                        "Value #D": "From Upstream",
+                        "dsthost": "Destination"
+                      }
+                    }
+                  }
+                }
+              ],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "table",
+            "version": "13.2.1",
+            "spec": {
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "Requests"
+                  }
+                ]
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "none",
+                  "decimals": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "text"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false,
+                    "minWidth": 80
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Destination"
+                    },
+                    "properties": [
+                      {
+                        "id": "links",
+                        "value": [
+                          {
+                            "targetBlank": true,
+                            "title": "Clients using this mirror",
+                            "url": "/d/apt-squid/apt-squid?details-dtab=clients&var-dsthost=${__value.raw}&${client:queryparam}&${__url_time_range}"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Requests"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "mode": "basic",
+                          "type": "gauge"
+                        }
+                      },
+                      {
+                        "id": "min",
+                        "value": 0
+                      },
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "blue",
+                          "mode": "fixed"
+                        }
+                      },
+                      {
+                        "id": "fieldMinMax",
+                        "value": true
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 560
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Hit Ratio"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "percentunit"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 1
+                      },
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "color-text"
+                        }
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "red",
+                              "value": 0
+                            },
+                            {
+                              "color": "yellow",
+                              "value": 0.3
+                            },
+                            {
+                              "color": "green",
+                              "value": 0.6
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 140
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "From Cache"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "bytes"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 1
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 190
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "From Upstream"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "bytes"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 1
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 200
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "panel-2": {
+        "kind": "Panel",
+        "spec": {
+          "id": 2,
+          "title": "Byte hit ratio",
+          "description": "Cacheable bytes only: denied and tunnelled (`CONNECT`) requests are outside the ratio.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(sum_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*HIT.*|TCP_REFRESH_UNMODIFIED.*` | unwrap size | __error__=\"\" [$__range]))\n/\n(sum(sum_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*` | action!~`TCP_DENIED.*|TCP_TUNNEL.*` | unwrap size | __error__=\"\" [$__range])) > 0)",
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.3.0",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": ["lastNotNull"],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "percentunit",
+                  "decimals": 1,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "text"
+                      },
+                      {
+                        "value": 0.3,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 0.6,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "noValue": "Idle"
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-20": {
+        "kind": "Panel",
+        "spec": {
+          "id": 20,
+          "title": "Denials by client",
+          "description": "- `407` is a client with missing or wrong proxy credentials.\n- `403` a destination the proxy's ACLs deny.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (client, status) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_DENIED.*` [$__auto]))",
+                        "legendFormat": "{{client}} · {{status}}",
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {
+                "maxDataPoints": 120,
+                "interval": "5m"
+              }
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.2.1",
+            "spec": {
+              "options": {
+                "legend": {
+                  "calcs": ["sum"],
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Total",
+                  "sortDesc": true,
+                  "width": 335
+                },
+                "tooltip": {
+                  "hideZeros": true,
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "none",
+                  "decimals": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "bars",
+                    "fillOpacity": 70,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "normal"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-22": {
+        "kind": "Panel",
+        "spec": {
+          "id": 22,
+          "title": "Denied destinations",
+          "description": "One row per destination and status the proxy rejected.\n- `403`: a destination the proxy's ACLs deny, so any host a client asks for can appear.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (dsthost, status) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_DENIED.*` [$__range]))",
+                        "legendFormat": "__auto",
+                        "queryType": "instant"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [
+                {
+                  "kind": "Transformation",
+                  "group": "organize",
+                  "spec": {
+                    "options": {
+                      "excludeByName": {
+                        "Time": true
+                      },
+                      "indexByName": {
+                        "dsthost": 0,
+                        "status": 1
+                      },
+                      "renameByName": {
+                        "Value": "Requests",
+                        "Value #A": "Requests",
+                        "dsthost": "Destination",
+                        "status": "Status"
+                      }
+                    }
+                  }
+                }
+              ],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "table",
+            "version": "13.2.1",
+            "spec": {
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "Requests"
+                  }
+                ]
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "none",
+                  "decimals": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "text"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false,
+                    "minWidth": 80
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Destination"
+                    },
+                    "properties": [
+                      {
+                        "id": "links",
+                        "value": [
+                          {
+                            "targetBlank": true,
+                            "title": "Clients denied this destination",
+                            "url": "/d/apt-squid/apt-squid?details-dtab=clients&var-dsthost=${__value.raw}&${client:queryparam}&${__url_time_range}"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Status"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 90
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Requests"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "mode": "basic",
+                          "type": "gauge"
+                        }
+                      },
+                      {
+                        "id": "min",
+                        "value": 0
+                      },
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "blue",
+                          "mode": "fixed"
+                        }
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 200
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "panel-3": {
+        "kind": "Panel",
+        "spec": {
+          "id": 3,
+          "title": "Requests",
+          "description": "Every request the proxy logged, denied and tunnelled included. Requests from `127.0.0.1`, such as a healthcheck, are excluded.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` [$__interval])) or vector(0)",
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {
+                "maxDataPoints": 6000
+              }
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.3.0",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": ["sum"],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "text"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-30": {
+        "kind": "Panel",
+        "spec": {
+          "id": 30,
+          "title": "Served requests by client",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (client) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action!~`TCP_DENIED.*` [$__auto]))",
+                        "legendFormat": "{{client}}",
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {
+                "maxDataPoints": 120,
+                "interval": "5m"
+              }
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.3.0",
+            "spec": {
+              "options": {
+                "legend": {
+                  "calcs": ["sum"],
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Total",
+                  "sortDesc": true,
+                  "width": 300
+                },
+                "tooltip": {
+                  "hideZeros": true,
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "none",
+                  "decimals": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "bars",
+                    "fillOpacity": 70,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "normal"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-31": {
+        "kind": "Panel",
+        "spec": {
+          "id": 31,
+          "title": "Client summary",
+          "description": "`Requests` counts every request the client sent; `Bytes` only the cacheable traffic the proxy answered with.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (client) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` [$__range]))",
+                        "queryType": "instant"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "(\nsum by (client) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_DENIED.*` [$__range]))\n)\nor\n(sum by (client) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` [$__range])) * 0)",
+                        "queryType": "instant"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "B",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "(\n(\nsum by (client) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_DENIED.*` [$__range]))\n)\nor\n(sum by (client) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` [$__range])) * 0)\n)\n/\nsum by (client) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` [$__range]))",
+                        "queryType": "instant"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "C",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "(\nsum by (client) (sum_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*` | action!~`TCP_DENIED.*|TCP_TUNNEL.*` | unwrap size | __error__=\"\" [$__range]))\n)\nor\n(sum by (client) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` [$__range])) * 0)",
+                        "queryType": "instant"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "D",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [
+                {
+                  "kind": "Transformation",
+                  "group": "joinByField",
+                  "spec": {
+                    "options": {
+                      "byField": "client",
+                      "mode": "outer"
+                    }
+                  }
+                },
+                {
+                  "kind": "Transformation",
+                  "group": "organize",
+                  "spec": {
+                    "options": {
+                      "excludeByName": {
+                        "Time": true,
+                        "Time 1": true,
+                        "Time 2": true,
+                        "Time 3": true,
+                        "Time 4": true,
+                        "Time 5": true
+                      },
+                      "indexByName": {
+                        "Value #A": 1,
+                        "Value #B": 2,
+                        "Value #C": 3,
+                        "Value #D": 4,
+                        "client": 0
+                      },
+                      "renameByName": {
+                        "Value #A": "Requests",
+                        "Value #B": "Denied",
+                        "Value #C": "Denied %",
+                        "Value #D": "Bytes",
+                        "client": "Client"
+                      }
+                    }
+                  }
+                }
+              ],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "table",
+            "version": "13.3.0",
+            "spec": {
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "Requests"
+                  },
+                  {
+                    "desc": true,
+                    "displayName": "Denied %"
+                  }
+                ],
+                "zebraStriping": false
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "none",
+                  "decimals": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "text"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false,
+                    "minWidth": 80
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Client"
+                    },
+                    "properties": [
+                      {
+                        "id": "links",
+                        "value": [
+                          {
+                            "targetBlank": true,
+                            "title": "Denials for this client",
+                            "url": "/d/apt-squid/apt-squid?details-dtab=denials&var-client=${__value.raw}&${dsthost:queryparam}&${__url_time_range}"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Requests"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "mode": "basic",
+                          "type": "gauge"
+                        }
+                      },
+                      {
+                        "id": "min",
+                        "value": 0
+                      },
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "blue",
+                          "mode": "fixed"
+                        }
+                      },
+                      {
+                        "id": "fieldMinMax",
+                        "value": true
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 190
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Denied"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 95
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Denied %"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "percentunit"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 1
+                      },
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "color-text"
+                        }
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "text",
+                              "value": 0
+                            },
+                            {
+                              "color": "yellow",
+                              "value": 0.2
+                            },
+                            {
+                              "color": "orange",
+                              "value": 0.5
+                            },
+                            {
+                              "color": "red",
+                              "value": 0.8
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 95
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Bytes"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "bytes"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 1
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 115
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "panel-4": {
+        "kind": "Panel",
+        "spec": {
+          "id": 4,
+          "title": "From cache",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(sum_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*HIT.*|TCP_REFRESH_UNMODIFIED.*` | unwrap size | __error__=\"\" [$__interval])) or vector(0)",
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {
+                "maxDataPoints": 6000
+              }
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.3.0",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": ["sum"],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "bytes",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-40": {
+        "kind": "Panel",
+        "spec": {
+          "id": 40,
+          "title": "",
+          "description": "Newest 1000 lines of the access log and Squid's cache log.\n- The store log and requests from `127.0.0.1` are dropped.\n- Each line's epoch timestamp is stripped, leaving `elapsed client action/status bytes method url user hierarchy/peer type`.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "direction": "backward",
+                        "editorMode": "code",
+                        "expr": "{syslog_id=\"docker/apt-squid\"} !~ `^\\S+ (RELEASE|SWAPOUT|SWAPIN) ` | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | line_format `{{ regexReplaceAll \"^[0-9]+\\\\.[0-9]+\\\\s+\" __line__ \"\" }}` | drop transport, systemd_unit, project, hostname",
+                        "maxLines": 1000,
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "logs",
+            "version": "13.2.1",
+            "spec": {
+              "options": {
+                "controlsStorageKey": "apt-squid-logs",
+                "dedupStrategy": "none",
+                "enableInfiniteScrolling": true,
+                "enableLogDetails": true,
+                "fontSize": "default",
+                "prettifyLogMessage": false,
+                "showCommonLabels": false,
+                "showControls": true,
+                "showFieldSelector": false,
+                "showLabels": false,
+                "showLevel": false,
+                "showTime": true,
+                "sortOrder": "Descending",
+                "syntaxHighlighting": true,
+                "timestampResolution": "ms",
+                "unwrappedColumns": false,
+                "wrapLogMessage": true
+              },
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-41": {
+        "kind": "Panel",
+        "spec": {
+          "id": 41,
+          "title": "",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(count_over_time({syslog_id=\"docker/apt-squid\"} !~ `^\\S+ (RELEASE|SWAPOUT|SWAPIN) ` | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` [$__interval]))",
+                        "legendFormat": "Lines",
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {
+                "maxDataPoints": 200
+              }
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.2.1",
+            "spec": {
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": false
+                },
+                "tooltip": {
+                  "hideZeros": true,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "decimals": 0,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "text"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "fixed",
+                    "fixedColor": "blue"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "bars",
+                    "fillOpacity": 100,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 0,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "never",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "normal"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-5": {
+        "kind": "Panel",
+        "spec": {
+          "id": 5,
+          "title": "From upstream",
+          "description": "Bytes sent downstream for requests the cache did not answer, which approximates what was pulled from the mirror.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(sum_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_.*` | action!~`TCP_DENIED.*|TCP_TUNNEL.*` | action!~`TCP_.*HIT.*|TCP_REFRESH_UNMODIFIED.*` | unwrap size | __error__=\"\" [$__interval])) or vector(0)",
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {
+                "maxDataPoints": 6000
+              }
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.3.0",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": ["sum"],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "bytes",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "blue"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-6": {
+        "kind": "Panel",
+        "spec": {
+          "id": 6,
+          "title": "Denied",
+          "description": "Requests the proxy rejected: `403` for a destination the proxy's ACLs deny, `407` for missing or wrong credentials.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_DENIED.*` [$__interval])) or vector(0)",
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {
+                "maxDataPoints": 6000
+              }
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.3.0",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": ["sum"],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "text"
+                      },
+                      {
+                        "value": 1,
+                        "color": "orange"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-7": {
+        "kind": "Panel",
+        "spec": {
+          "id": 7,
+          "title": "Auth failures",
+          "description": "Status `407`. One per connection is the normal credential challenge; a client that only ever gets `407` is misconfigured.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` | action=~`TCP_DENIED.*` | status=\"407\" [$__interval])) or vector(0)",
+                        "queryType": "range"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {
+                "maxDataPoints": 6000
+              }
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.3.0",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": ["sum"],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "text"
+                      },
+                      {
+                        "value": 1,
+                        "color": "orange"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-8": {
+        "kind": "Panel",
+        "spec": {
+          "id": 8,
+          "title": "Clients",
+          "description": "Distinct client addresses that sent a request, rejected ones included. Requests from `127.0.0.1`, such as a healthcheck, are excluded.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "loki",
+                      "version": "v0",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "count(count by (client) (count_over_time({syslog_id=\"docker/apt-squid\"} |~ \" (TCP|UDP|NONE)_[A-Z_]+/[0-9]{3} \" | regexp `^\\S+\\s+\\d+\\s+(?P<client>\\S+)\\s+(?P<action>[A-Z_]+)/(?P<status>\\d+)\\s+(?P<size>\\d+)\\s+\\S+\\s+(?:[a-z]+://)?(?P<dsthost>[^/\\s:]*)(?::\\d+)?\\S*\\s+\\S+\\s+[A-Z_]+/\\S+` | client!=\"127.0.0.1\" | client=~`$client` | dsthost=~`$dsthost` [$__range]))) or vector(0)",
+                        "queryType": "instant"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "loki-1",
+                        "grafana.app/export-datasource-name": "Loki Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.3.0",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": ["lastNotNull"],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "decimals": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "text"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      }
+    },
+    "layout": {
+      "kind": "RowsLayout",
+      "spec": {
+        "rows": [
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "title": "Overview",
+              "collapse": false,
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 0,
+                        "width": 3,
+                        "height": 3,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-1"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 3,
+                        "y": 0,
+                        "width": 3,
+                        "height": 3,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-2"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 6,
+                        "y": 0,
+                        "width": 3,
+                        "height": 3,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-3"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 9,
+                        "y": 0,
+                        "width": 3,
+                        "height": 3,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-4"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 0,
+                        "width": 3,
+                        "height": 3,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-5"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 15,
+                        "y": 0,
+                        "width": 3,
+                        "height": 3,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-6"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 18,
+                        "y": 0,
+                        "width": 3,
+                        "height": 3,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-7"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 21,
+                        "y": 0,
+                        "width": 3,
+                        "height": 3,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-8"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "title": "Details",
+              "collapse": false,
+              "layout": {
+                "kind": "TabsLayout",
+                "spec": {
+                  "tabs": [
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "title": "Clients",
+                        "layout": {
+                          "kind": "GridLayout",
+                          "spec": {
+                            "items": [
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 0,
+                                  "y": 0,
+                                  "width": 14,
+                                  "height": 19,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-30"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 14,
+                                  "y": 0,
+                                  "width": 10,
+                                  "height": 19,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-31"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "title": "Denials",
+                        "layout": {
+                          "kind": "GridLayout",
+                          "spec": {
+                            "items": [
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 0,
+                                  "y": 0,
+                                  "width": 14,
+                                  "height": 19,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-20"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 14,
+                                  "y": 0,
+                                  "width": 10,
+                                  "height": 19,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-22"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "title": "Cache",
+                        "layout": {
+                          "kind": "GridLayout",
+                          "spec": {
+                            "items": [
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 0,
+                                  "y": 0,
+                                  "width": 12,
+                                  "height": 11,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-10"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 12,
+                                  "y": 0,
+                                  "width": 12,
+                                  "height": 11,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-11"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 0,
+                                  "y": 11,
+                                  "width": 24,
+                                  "height": 8,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-12"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "title": "Logs",
+                        "layout": {
+                          "kind": "GridLayout",
+                          "spec": {
+                            "items": [
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 0,
+                                  "y": 0,
+                                  "width": 24,
+                                  "height": 3,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-41"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 0,
+                                  "y": 3,
+                                  "width": 24,
+                                  "height": 16,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-40"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "links": [],
+    "liveNow": false,
+    "preload": false,
+    "tags": ["linux"],
+    "timeSettings": {
+      "timezone": "browser",
+      "from": "now-24h",
+      "to": "now",
+      "autoRefresh": "5m",
+      "autoRefreshIntervals": [
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "hideTimepicker": false,
+      "fiscalYearStartMonth": 0
+    },
+    "title": "Apt Squid",
+    "variables": [
+      {
+        "kind": "TextVariable",
+        "spec": {
+          "name": "client",
+          "current": {
+            "text": ".*",
+            "value": ".*"
+          },
+          "query": ".*",
+          "label": "Client",
+          "hide": "dontHide",
+          "skipUrlSync": false,
+          "description": "Client filter applied to every panel, as a regex. `.*` is every client."
+        }
+      },
+      {
+        "kind": "TextVariable",
+        "spec": {
+          "name": "dsthost",
+          "current": {
+            "text": ".*",
+            "value": ".*"
+          },
+          "query": ".*",
+          "label": "Destination",
+          "hide": "dontHide",
+          "skipUrlSync": false,
+          "description": "Destination host filter applied to every panel, as a regex. `.*` is every destination."
+        }
+      }
+    ]
+  }
+}

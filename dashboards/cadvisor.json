@@ -3,7 +3,7 @@
   "kind": "Dashboard",
   "metadata": {
     "name": "cadvisor",
-    "generation": 86,
+    "generation": 129,
     "creationTimestamp": "2026-03-24T22:48:03Z",
     "labels": {},
     "annotations": {}
@@ -31,15 +31,15 @@
       }
     ],
     "cursorSync": "Crosshair",
-    "description": "CAdvisor dashboard.",
+    "description": "Per-container CPU, memory, network and disk.",
     "editable": true,
     "elements": {
       "panel-14": {
         "kind": "Panel",
         "spec": {
           "id": 14,
-          "title": "Memory Cached",
-          "description": "OS page cache used by the container. Reclaimable under memory pressure.",
+          "title": "Memory cached",
+          "description": "File data the kernel holds for the container. Reclaimable under memory pressure, so a high value is not itself a shortage.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -53,9 +53,9 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_cache{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
+                        "expr": "sum(container_memory_cache{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (host, name)",
                         "interval": "",
-                        "legendFormat": "{{name}} @ {{instance}}"
+                        "legendFormat": "{{name}} · {{host}}"
                       },
                       "labels": {
                         "grafana.app/export-label": "prometheus-1",
@@ -87,7 +87,8 @@
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
-                  "sortDesc": true
+                  "sortDesc": true,
+                  "width": 400
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -200,8 +201,8 @@
         "kind": "Panel",
         "spec": {
           "id": 15,
-          "title": "CPU Usage",
-          "description": "CPU time consumed per container as a percentage of one core. Values above 100% mean more than one core is in use (e.g. 250% = 2.5 cores).",
+          "title": "CPU usage",
+          "description": "CPU time as a share of one core: 250% is 2.5 cores.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -215,9 +216,9 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name) *100",
+                        "expr": "sum(rate(container_cpu_usage_seconds_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (host, name) *100",
                         "interval": "",
-                        "legendFormat": "{{name}} @ {{instance}}"
+                        "legendFormat": "{{name}} · {{host}}"
                       },
                       "labels": {
                         "grafana.app/export-label": "prometheus-1",
@@ -249,7 +250,8 @@
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
-                  "sortDesc": true
+                  "sortDesc": true,
+                  "width": 490
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -362,8 +364,8 @@
         "kind": "Panel",
         "spec": {
           "id": 17,
-          "title": "Containers Info",
-          "description": "",
+          "title": "",
+          "description": "One row per container.\n- `CPU %` and `Memory` are averaged over the range; every other column is the latest sample.\n- `Memory` is anonymous memory, while `Memory Limit` is enforced against the larger working set: a container can be killed with `Memory` reading low.\n- `Restarts` counts in-place restarts and recreations.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -378,7 +380,7 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(time() - label_replace(container_start_time_seconds{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}, \"version\", \"$1\", \"image\", \".*?:(.*?)(@.*)?$\"))",
+                        "expr": "(time() - label_replace(container_start_time_seconds{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}, \"version\", \"$1\", \"image\", \".*?:(.*?)(@.*)?$\"))",
                         "format": "table",
                         "instant": true,
                         "interval": "",
@@ -402,7 +404,7 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "container_health_state{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}",
+                        "expr": "container_health_state{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}",
                         "format": "table",
                         "instant": true,
                         "interval": "",
@@ -426,7 +428,7 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(container_spec_memory_limit_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"} > 0) by (name, instance)",
+                        "expr": "sum(container_spec_memory_limit_bytes{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"} > 0) by (name, host)",
                         "format": "table",
                         "instant": true,
                         "interval": "",
@@ -450,7 +452,7 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "avg_over_time(sum by (name, instance) (rate(container_cpu_usage_seconds_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}[5m]))[${__range}:5m]) * 100",
+                        "expr": "avg_over_time(sum by (name, host) (rate(container_cpu_usage_seconds_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}[5m]))[${__range}:5m]) * 100",
                         "format": "table",
                         "instant": true,
                         "interval": "",
@@ -474,7 +476,7 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "avg_over_time(sum by (name, instance) (container_memory_rss{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"})[${__range}:5m])",
+                        "expr": "avg_over_time(sum by (name, host) (container_memory_rss{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"})[${__range}:5m])",
                         "format": "table",
                         "instant": true,
                         "interval": "",
@@ -498,7 +500,7 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum by (name, instance) (changes(container_start_time_seconds{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}[${__range}]))",
+                        "expr": "sum by (name, host) (changes(container_start_time_seconds{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}[${__range}]))\n+ (count by (name, host) (count_over_time(container_start_time_seconds{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"}[${__range}])) - 1)",
                         "format": "table",
                         "instant": true,
                         "interval": "",
@@ -522,7 +524,7 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "2 * (container_health_state{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"} == bool 0) + (container_health_state{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"} == bool 1)",
+                        "expr": "2 * (container_health_state{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"} == bool 0) + (container_health_state{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\",  name=~\"$container\", name=~\".+\"} == bool 1)",
                         "format": "table",
                         "instant": true,
                         "interval": "",
@@ -556,7 +558,7 @@
                           "container_label_com_docker_compose_project",
                           "container_label_com_docker_compose_service",
                           "image",
-                          "instance",
+                          "host",
                           "name",
                           "Value #A",
                           "Value #B",
@@ -588,8 +590,8 @@
                         "Value #G": 12,
                         "container_label_com_docker_compose_project": 1,
                         "container_label_com_docker_compose_service": 3,
+                        "host": 0,
                         "image": 5,
-                        "instance": 0,
                         "name": 2,
                         "version": 4
                       },
@@ -605,8 +607,8 @@
                         "container_label_com_docker_compose_project_working_dir": "Working dir",
                         "container_label_com_docker_compose_service": "Service",
                         "container_label_org_opencontainers_image_version": "Image version",
+                        "host": "Host",
                         "image": "Registry Image",
-                        "instance": "Instance",
                         "name": "Name",
                         "version": "Version"
                       }
@@ -656,7 +658,7 @@
                     "cellOptions": {
                       "type": "auto"
                     },
-                    "filterable": true,
+                    "filterable": false,
                     "footer": {
                       "reducers": []
                     },
@@ -668,7 +670,7 @@
                   {
                     "matcher": {
                       "id": "byName",
-                      "options": "Instance"
+                      "options": "Host"
                     },
                     "properties": [
                       {
@@ -676,8 +678,8 @@
                         "value": [
                           {
                             "targetBlank": true,
-                            "title": "Node Exporter",
-                            "url": "/d/rYdddlPWk/node-exporter-full?var-nodename=${__value.raw}&${__url_time_range}"
+                            "title": "Host dashboard",
+                            "url": "/d/hosts/hosts?dtab=Host&var-hostname=${__value.raw}&${__url_time_range}"
                           },
                           {
                             "targetBlank": true,
@@ -685,6 +687,14 @@
                             "url": "/d/cadvisor/cadvisor-exporter?var-hostname=${__value.raw}&var-project=$__all&var-container=$__all&Details-dtab=CPU-%26-Memory&Details-CPU-%26-Memory-dtab=Combined&${__url_time_range}"
                           }
                         ]
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 140
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
                       }
                     ]
                   },
@@ -711,9 +721,13 @@
                       {
                         "id": "color",
                         "value": {
-                          "fixedColor": "dark-green",
+                          "fixedColor": "green",
                           "mode": "fixed"
                         }
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 120
                       }
                     ]
                   },
@@ -739,6 +753,10 @@
                       {
                         "id": "custom.wrapText",
                         "value": false
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 120
                       }
                     ]
                   },
@@ -753,20 +771,20 @@
                         "value": [
                           {
                             "options": {
-                              "0": {
-                                "color": "dark-red",
-                                "index": 1,
-                                "text": "Unhealthy"
-                              },
-                              "1": {
-                                "color": "dark-green",
-                                "index": 0,
-                                "text": "Healthy"
-                              },
                               "-1": {
                                 "color": "text",
                                 "index": 2,
                                 "text": "No check"
+                              },
+                              "0": {
+                                "color": "red",
+                                "index": 1,
+                                "text": "Unhealthy"
+                              },
+                              "1": {
+                                "color": "green",
+                                "index": 0,
+                                "text": "Healthy"
                               }
                             },
                             "type": "value"
@@ -778,6 +796,14 @@
                         "value": {
                           "type": "color-text"
                         }
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 110
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
                       }
                     ]
                   },
@@ -815,6 +841,10 @@
                       {
                         "id": "min",
                         "value": 0
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 130
                       }
                     ]
                   },
@@ -831,6 +861,10 @@
                       {
                         "id": "decimals",
                         "value": 0
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 120
                       }
                     ]
                   },
@@ -847,18 +881,10 @@
                       {
                         "id": "decimals",
                         "value": 0
-                      }
-                    ]
-                  },
-                  {
-                    "matcher": {
-                      "id": "byName",
-                      "options": "Registry Image"
-                    },
-                    "properties": [
+                      },
                       {
                         "id": "custom.width",
-                        "value": 250
+                        "value": 140
                       }
                     ]
                   },
@@ -869,7 +895,7 @@
                     },
                     "properties": [
                       {
-                        "id": "custom.hidden",
+                        "id": "custom.hideFrom.viz",
                         "value": true
                       }
                     ]
@@ -889,6 +915,14 @@
                             "url": "/d/cadvisor/cadvisor-exporter?var-project=${__value.raw}&var-container=$__all&Details-dtab=CPU-%26-Memory&Details-CPU-%26-Memory-dtab=Per-Host&${__url_time_range}"
                           }
                         ]
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 120
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
                       }
                     ]
                   },
@@ -904,9 +938,53 @@
                           {
                             "targetBlank": true,
                             "title": "CPU & Mem for this container",
-                            "url": "/d/cadvisor/cadvisor-exporter?var-hostname=${__data.fields[\"Instance\"]}&var-project=${__data.fields[\"Project\"]}&var-container=${__value.raw}&Details-dtab=CPU-%26-Memory&Details-CPU-%26-Memory-dtab=Combined&${__url_time_range}"
+                            "url": "/d/cadvisor/cadvisor-exporter?var-hostname=${__data.fields[\"Host\"]}&var-project=${__data.fields[\"Project\"]}&var-container=${__value.raw}&Details-dtab=CPU-%26-Memory&Details-CPU-%26-Memory-dtab=Combined&${__url_time_range}"
                           }
                         ]
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 160
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Service"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 120
+                      },
+                      {
+                        "id": "custom.filterable",
+                        "value": true
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Restarts"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 110
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Registry Image"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.filterable",
+                        "value": true
                       }
                     ]
                   }
@@ -921,7 +999,7 @@
         "spec": {
           "id": 21,
           "title": "Disk I/O",
-          "description": "",
+          "description": "Reads above the axis, writes below. A container idle for the whole range is dropped from the legend.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -936,9 +1014,9 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(rate(container_fs_reads_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
+                        "expr": "sum(rate(container_fs_reads_bytes_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (host, name)",
                         "interval": "",
-                        "legendFormat": "{{name}} @ {{instance}} read",
+                        "legendFormat": "{{name}} · {{host}} · read",
                         "range": true
                       },
                       "labels": {
@@ -959,9 +1037,9 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(rate(container_fs_writes_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
+                        "expr": "sum(rate(container_fs_writes_bytes_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (host, name)",
                         "interval": "",
-                        "legendFormat": "{{name}} @ {{instance}} write",
+                        "legendFormat": "{{name}} · {{host}} · write",
                         "range": true
                       },
                       "labels": {
@@ -994,7 +1072,8 @@
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
-                  "sortDesc": true
+                  "sortDesc": true,
+                  "width": 490
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -1119,7 +1198,7 @@
         "kind": "Panel",
         "spec": {
           "id": 24,
-          "title": "Running Containers",
+          "title": "Running containers",
           "description": "",
           "links": [],
           "data": {
@@ -1134,7 +1213,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "count(container_last_seen{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) or vector(0)",
+                        "expr": "count(container_last_seen{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) or vector(0)",
                         "legendFormat": ""
                       },
                       "labels": {
@@ -1154,7 +1233,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -1168,6 +1247,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -1194,8 +1276,8 @@
         "kind": "Panel",
         "spec": {
           "id": 25,
-          "title": "CPU Utilization",
-          "description": "",
+          "title": "CPU utilization",
+          "description": "The same CPU time divided by the cores the selected hosts have, so it cannot exceed 100%.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1209,7 +1291,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "((sum(rate(container_cpu_usage_seconds_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) / clamp_min(sum(machine_cpu_cores{instance=~\"$hostname\"}), 1)) * 100) or vector(0)",
+                        "expr": "((sum(rate(container_cpu_usage_seconds_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) / clamp_min(sum(machine_cpu_cores{host=~\"$hostname\"}), 1)) * 100) or vector(0)",
                         "legendFormat": ""
                       },
                       "labels": {
@@ -1229,7 +1311,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -1243,6 +1325,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -1277,8 +1362,8 @@
         "kind": "Panel",
         "spec": {
           "id": 26,
-          "title": "Memory Utilization",
-          "description": "",
+          "title": "Memory utilization",
+          "description": "Container anonymous memory against the selected hosts' total RAM. Page cache and everything the host uses outside containers fall outside the numerator, so this reads below what the host reports.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1292,7 +1377,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "((sum(container_memory_rss{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) / clamp_min(sum(machine_memory_bytes{instance=~\"$hostname\"}), 1)) * 100) or vector(0)",
+                        "expr": "((sum(container_memory_rss{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) / clamp_min(sum(machine_memory_bytes{host=~\"$hostname\"}), 1)) * 100) or vector(0)",
                         "legendFormat": ""
                       },
                       "labels": {
@@ -1312,7 +1397,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -1326,6 +1411,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -1360,8 +1448,8 @@
         "kind": "Panel",
         "spec": {
           "id": 27,
-          "title": "Total Network I/O",
-          "description": "",
+          "title": "Total network I/O",
+          "description": "Receive and transmit added together.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1375,7 +1463,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "(sum(rate(container_network_receive_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) + sum(rate(container_network_transmit_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m]))) or vector(0)",
+                        "expr": "(sum(rate(container_network_receive_bytes_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) + sum(rate(container_network_transmit_bytes_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m]))) or vector(0)",
                         "legendFormat": ""
                       },
                       "labels": {
@@ -1395,7 +1483,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -1409,6 +1497,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -1435,8 +1526,8 @@
         "kind": "Panel",
         "spec": {
           "id": 30,
-          "title": "Container Writable Layer",
-          "description": "Current disk usage of the container's copy-on-write layer. Excludes volumes, bind mounts, and tmpfs.",
+          "title": "Container writable layer",
+          "description": "Only the copy-on-write layer. Volumes, bind mounts and tmpfs live elsewhere and are not counted.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1451,9 +1542,9 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(container_fs_usage_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
+                        "expr": "sum(container_fs_usage_bytes{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (host, name)",
                         "interval": "",
-                        "legendFormat": "{{name}} @ {{instance}}",
+                        "legendFormat": "{{name}} · {{host}}",
                         "range": true
                       },
                       "labels": {
@@ -1486,7 +1577,8 @@
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
-                  "sortDesc": true
+                  "sortDesc": true,
+                  "width": 400
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -1541,7 +1633,7 @@
                     "spanNulls": false,
                     "stacking": {
                       "group": "A",
-                      "mode": "normal"
+                      "mode": "none"
                     },
                     "thresholdsStyle": {
                       "mode": "off"
@@ -1600,7 +1692,7 @@
         "spec": {
           "id": 31,
           "title": "Unhealthy",
-          "description": "",
+          "description": "Containers failing a healthcheck now.\n- cAdvisor reports `starting` and `unhealthy` as one value, so the window after a restart counts here.\n- Containers that define no healthcheck are never counted.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1614,7 +1706,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "count(container_health_state{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"} == 0) or vector(0)",
+                        "expr": "count(container_health_state{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"} == 0) or vector(0)",
                         "legendFormat": ""
                       },
                       "labels": {
@@ -1634,11 +1726,11 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "colorMode": "value",
-                "graphMode": "none",
+                "graphMode": "area",
                 "justifyMode": "auto",
                 "orientation": "auto",
                 "percentChangeColorMode": "standard",
@@ -1648,6 +1740,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -1691,8 +1786,8 @@
         "kind": "Panel",
         "spec": {
           "id": 34,
-          "title": "Total Disk I/O",
-          "description": "",
+          "title": "Total disk I/O",
+          "description": "Reads and writes added together.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1706,7 +1801,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "(sum(rate(container_fs_reads_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) + sum(rate(container_fs_writes_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m]))) or vector(0)",
+                        "expr": "(sum(rate(container_fs_reads_bytes_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) + sum(rate(container_fs_writes_bytes_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m]))) or vector(0)",
                         "legendFormat": ""
                       },
                       "labels": {
@@ -1726,7 +1821,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -1740,6 +1835,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -1766,8 +1864,8 @@
         "kind": "Panel",
         "spec": {
           "id": 35,
-          "title": "CPU Usage",
-          "description": "CPU time consumed per container as a percentage of one core. Values above 100% mean more than one core is in use (e.g. 250% = 2.5 cores).",
+          "title": "CPU usage",
+          "description": "CPU time as a share of one core: 250% is 2.5 cores.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1781,7 +1879,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name) *100",
+                        "expr": "sum(rate(container_cpu_usage_seconds_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name) *100",
                         "interval": "",
                         "legendFormat": "{{name}}"
                       },
@@ -1802,7 +1900,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "annotations": {
@@ -1817,7 +1915,8 @@
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
-                  "sortDesc": true
+                  "sortDesc": true,
+                  "width": 360
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -1930,8 +2029,8 @@
         "kind": "Panel",
         "spec": {
           "id": 36,
-          "title": "Memory Usage",
-          "description": "RSS — physical RAM actively held by the container.",
+          "title": "Memory usage",
+          "description": "Anonymous memory: heap and stacks. Page cache and the container's own resident binary pages fall outside it, so a container whose footprint is mostly cache reads low.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1945,7 +2044,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_rss{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
+                        "expr": "sum(container_memory_rss{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}}"
                       },
@@ -1966,7 +2065,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "annotations": {
@@ -1981,7 +2080,8 @@
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
-                  "sortDesc": true
+                  "sortDesc": true,
+                  "width": 360
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -2094,8 +2194,8 @@
         "kind": "Panel",
         "spec": {
           "id": 37,
-          "title": "Memory Cached",
-          "description": "OS page cache used by the container. Reclaimable under memory pressure.",
+          "title": "Memory cached",
+          "description": "File data the kernel holds for the container. Reclaimable under memory pressure, so a high value is not itself a shortage.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2109,7 +2209,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_cache{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
+                        "expr": "sum(container_memory_cache{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}}"
                       },
@@ -2130,7 +2230,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.0",
+            "version": "13.2.3",
             "spec": {
               "options": {
                 "annotations": {
@@ -2145,7 +2245,8 @@
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
-                  "sortDesc": true
+                  "sortDesc": true,
+                  "width": 340
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -2258,8 +2359,8 @@
         "kind": "Panel",
         "spec": {
           "id": 38,
-          "title": "Container Writable Layer",
-          "description": "Current disk usage of the container's copy-on-write layer. Excludes volumes, bind mounts, and tmpfs.",
+          "title": "Container writable layer",
+          "description": "Only the copy-on-write layer. Volumes, bind mounts and tmpfs live elsewhere and are not counted.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2274,7 +2375,7 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(container_fs_usage_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
+                        "expr": "sum(container_fs_usage_bytes{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}}",
                         "range": true
@@ -2296,7 +2397,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.2.3",
             "spec": {
               "options": {
                 "annotations": {
@@ -2309,7 +2410,8 @@
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
-                  "sortDesc": true
+                  "sortDesc": true,
+                  "width": 340
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -2364,7 +2466,7 @@
                     "spanNulls": false,
                     "stacking": {
                       "group": "A",
-                      "mode": "normal"
+                      "mode": "none"
                     },
                     "thresholdsStyle": {
                       "mode": "off"
@@ -2422,8 +2524,8 @@
         "kind": "Panel",
         "spec": {
           "id": 39,
-          "title": "Network Traffic",
-          "description": "",
+          "title": "Network traffic",
+          "description": "Receive above the axis, transmit below. A container idle for the whole range is dropped from the legend.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2437,7 +2539,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_network_receive_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
+                        "expr": "sum(rate(container_network_receive_bytes_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} recv"
                       },
@@ -2458,7 +2560,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_network_transmit_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
+                        "expr": "sum(rate(container_network_transmit_bytes_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} send"
                       },
@@ -2492,7 +2594,8 @@
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
-                  "sortDesc": true
+                  "sortDesc": true,
+                  "width": 360
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -2547,7 +2650,7 @@
                     "spanNulls": false,
                     "stacking": {
                       "group": "A",
-                      "mode": "normal"
+                      "mode": "none"
                     },
                     "thresholdsStyle": {
                       "mode": "off"
@@ -2564,13 +2667,6 @@
                       {
                         "id": "custom.transform",
                         "value": "negative-Y"
-                      },
-                      {
-                        "id": "custom.stacking",
-                        "value": {
-                          "group": "B",
-                          "mode": "normal"
-                        }
                       }
                     ]
                   },
@@ -2624,8 +2720,8 @@
         "kind": "Panel",
         "spec": {
           "id": 4,
-          "title": "Network Traffic",
-          "description": "",
+          "title": "Network traffic",
+          "description": "Receive above the axis, transmit below. A container idle for the whole range is dropped from the legend.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2639,9 +2735,9 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_network_receive_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
+                        "expr": "sum(rate(container_network_receive_bytes_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (host, name)",
                         "interval": "",
-                        "legendFormat": "{{name}} @ {{instance}} recv"
+                        "legendFormat": "{{name}} · {{host}} · recv"
                       },
                       "labels": {
                         "grafana.app/export-label": "prometheus-1",
@@ -2660,9 +2756,9 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_network_transmit_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
+                        "expr": "sum(rate(container_network_transmit_bytes_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (host, name)",
                         "interval": "",
-                        "legendFormat": "{{name}} @ {{instance}} send"
+                        "legendFormat": "{{name}} · {{host}} · send"
                       },
                       "labels": {
                         "grafana.app/export-label": "prometheus-1",
@@ -2694,7 +2790,8 @@
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
-                  "sortDesc": true
+                  "sortDesc": true,
+                  "width": 480
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -2749,7 +2846,7 @@
                     "spanNulls": false,
                     "stacking": {
                       "group": "A",
-                      "mode": "normal"
+                      "mode": "none"
                     },
                     "thresholdsStyle": {
                       "mode": "off"
@@ -2766,13 +2863,6 @@
                       {
                         "id": "custom.transform",
                         "value": "negative-Y"
-                      },
-                      {
-                        "id": "custom.stacking",
-                        "value": {
-                          "group": "B",
-                          "mode": "normal"
-                        }
                       }
                     ]
                   },
@@ -2827,7 +2917,7 @@
         "spec": {
           "id": 40,
           "title": "Disk I/O",
-          "description": "",
+          "description": "Reads above the axis, writes below. A container idle for the whole range is dropped from the legend.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2842,7 +2932,7 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(rate(container_fs_reads_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
+                        "expr": "sum(rate(container_fs_reads_bytes_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} read",
                         "range": true
@@ -2865,7 +2955,7 @@
                       "version": "v0",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(rate(container_fs_writes_bytes_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
+                        "expr": "sum(rate(container_fs_writes_bytes_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} write",
                         "range": true
@@ -2900,7 +2990,8 @@
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
-                  "sortDesc": true
+                  "sortDesc": true,
+                  "width": 360
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -3025,8 +3116,8 @@
         "kind": "Panel",
         "spec": {
           "id": 41,
-          "title": "CPU Usage",
-          "description": "",
+          "title": "CPU usage",
+          "description": "CPU time as a share of one core: 250% is 2.5 cores.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3040,7 +3131,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) * 100",
+                        "expr": "sum(rate(container_cpu_usage_seconds_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) * 100",
                         "legendFormat": ""
                       },
                       "labels": {
@@ -3060,7 +3151,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -3074,6 +3165,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -3100,8 +3194,8 @@
         "kind": "Panel",
         "spec": {
           "id": 42,
-          "title": "Memory Usage",
-          "description": "",
+          "title": "Memory usage",
+          "description": "Anonymous memory across the selected containers: heap and stacks, with page cache outside it.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3115,7 +3209,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_rss{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"})",
+                        "expr": "sum(container_memory_rss{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"})",
                         "legendFormat": ""
                       },
                       "labels": {
@@ -3135,7 +3229,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.0",
+            "version": "13.3.0",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -3149,6 +3243,9 @@
                   "values": false
                 },
                 "showPercentChange": false,
+                "text": {
+                  "valueSize": 24
+                },
                 "textMode": "auto",
                 "wideLayout": true
               },
@@ -3175,8 +3272,8 @@
         "kind": "Panel",
         "spec": {
           "id": 43,
-          "title": "Memory Refaults",
-          "description": "Workingset refaults — pages evicted under memory pressure, then needed again; sustained values mean the working set doesn't fit in memory. `anon` = swap-backed (severe), `file` = page cache (milder).",
+          "title": "Memory refaults",
+          "description": "Pages evicted under memory pressure and then needed again; sustained values mean the working set does not fit in memory.\n\n- `anon` — swap-backed, severe\n- `file` — page cache, milder",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3190,7 +3287,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_memory_workingset_refault_anon_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
+                        "expr": "sum(rate(container_memory_workingset_refault_anon_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} anon"
                       },
@@ -3211,7 +3308,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_memory_workingset_refault_file_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
+                        "expr": "sum(rate(container_memory_workingset_refault_file_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} file"
                       },
@@ -3232,7 +3329,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.0",
+            "version": "13.2.3",
             "spec": {
               "options": {
                 "annotations": {
@@ -3246,8 +3343,9 @@
                   "overflow": "ellipsis",
                   "placement": "right",
                   "showLegend": true,
-                  "sortBy": "Max",
-                  "sortDesc": true
+                  "sortBy": "Mean",
+                  "sortDesc": true,
+                  "width": 420
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -3360,8 +3458,8 @@
         "kind": "Panel",
         "spec": {
           "id": 44,
-          "title": "Memory Refaults",
-          "description": "Workingset refaults — pages evicted under memory pressure, then needed again; sustained values mean the working set doesn't fit in memory. `anon` = swap-backed (severe), `file` = page cache (milder).",
+          "title": "Memory refaults",
+          "description": "Pages evicted under memory pressure and then needed again; sustained values mean the working set does not fit in memory.\n\n- `anon` — swap-backed, severe\n- `file` — page cache, milder",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3375,9 +3473,9 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_memory_workingset_refault_anon_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
+                        "expr": "sum(rate(container_memory_workingset_refault_anon_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (host, name)",
                         "interval": "",
-                        "legendFormat": "{{name}} anon @ {{instance}}"
+                        "legendFormat": "{{name}} · {{host}} · anon"
                       },
                       "labels": {
                         "grafana.app/export-label": "prometheus-1",
@@ -3396,9 +3494,9 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(rate(container_memory_workingset_refault_file_total{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (instance, name)",
+                        "expr": "sum(rate(container_memory_workingset_refault_file_total{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}[5m])) by (host, name)",
                         "interval": "",
-                        "legendFormat": "{{name}} file @ {{instance}}"
+                        "legendFormat": "{{name}} · {{host}} · file"
                       },
                       "labels": {
                         "grafana.app/export-label": "prometheus-1",
@@ -3429,8 +3527,9 @@
                   "displayMode": "table",
                   "placement": "right",
                   "showLegend": true,
-                  "sortBy": "Max",
-                  "sortDesc": true
+                  "sortBy": "Mean",
+                  "sortDesc": true,
+                  "width": 480
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -3543,8 +3642,8 @@
         "kind": "Panel",
         "spec": {
           "id": 45,
-          "title": "Dirty / Writeback",
-          "description": "Unflushed page-cache backlog. `dirty` = modified but not yet written to disk; `writeback` = currently flushing. Growing values mean writes outpace the disk (I/O backpressure).",
+          "title": "Dirty / writeback",
+          "description": "Page-cache backlog waiting on the disk. Growing values mean writes outpace it.\n\n- `dirty` — modified, not yet written\n- `writeback` — currently flushing",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3558,7 +3657,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_file_dirty_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
+                        "expr": "sum(container_memory_file_dirty_bytes{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} dirty"
                       },
@@ -3579,7 +3678,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_file_writeback_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
+                        "expr": "sum(container_memory_file_writeback_bytes{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (name)",
                         "interval": "",
                         "legendFormat": "{{name}} writeback"
                       },
@@ -3600,7 +3699,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.0",
+            "version": "13.2.3",
             "spec": {
               "options": {
                 "annotations": {
@@ -3614,8 +3713,9 @@
                   "overflow": "ellipsis",
                   "placement": "right",
                   "showLegend": true,
-                  "sortBy": "Max",
-                  "sortDesc": true
+                  "sortBy": "Mean",
+                  "sortDesc": true,
+                  "width": 420
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -3728,8 +3828,8 @@
         "kind": "Panel",
         "spec": {
           "id": 46,
-          "title": "Dirty / Writeback",
-          "description": "Unflushed page-cache backlog. `dirty` = modified but not yet written to disk; `writeback` = currently flushing. Growing values mean writes outpace the disk (I/O backpressure).",
+          "title": "Dirty / writeback",
+          "description": "Page-cache backlog waiting on the disk. Growing values mean writes outpace it.\n\n- `dirty` — modified, not yet written\n- `writeback` — currently flushing",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3743,9 +3843,9 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_file_dirty_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
+                        "expr": "sum(container_memory_file_dirty_bytes{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (host, name)",
                         "interval": "",
-                        "legendFormat": "{{name}} dirty @ {{instance}}"
+                        "legendFormat": "{{name}} · {{host}} · dirty"
                       },
                       "labels": {
                         "grafana.app/export-label": "prometheus-1",
@@ -3764,9 +3864,9 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_file_writeback_bytes{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
+                        "expr": "sum(container_memory_file_writeback_bytes{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (host, name)",
                         "interval": "",
-                        "legendFormat": "{{name}} writeback @ {{instance}}"
+                        "legendFormat": "{{name}} · {{host}} · writeback"
                       },
                       "labels": {
                         "grafana.app/export-label": "prometheus-1",
@@ -3797,8 +3897,9 @@
                   "displayMode": "table",
                   "placement": "right",
                   "showLegend": true,
-                  "sortBy": "Max",
-                  "sortDesc": true
+                  "sortBy": "Mean",
+                  "sortDesc": true,
+                  "width": 480
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -3907,12 +4008,12 @@
           }
         }
       },
-      "panel-9": {
+      "panel-54": {
         "kind": "Panel",
         "spec": {
-          "id": 9,
-          "title": "Memory Usage",
-          "description": "RSS — physical RAM actively held by the container.",
+          "id": 54,
+          "title": "",
+          "description": "Containers not healthy at some point in the range, longest first.\n- cAdvisor reports `starting` and `unhealthy` as one value, so the window after a restart earns a lane.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -3926,9 +4027,255 @@
                       "group": "prometheus",
                       "version": "v0",
                       "spec": {
-                        "expr": "sum(container_memory_rss{instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (instance, name)",
+                        "expr": "sum by (host, name) (sum_over_time((container_health_state{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\", name=~\".+\"} == bool 0)[$__interval:1m] offset -$__interval))\n* on (host, name) group_left (_sort)\ncount_values by (host, name) (\"_sort\", 1e6 - (sum by (host, name) (sum_over_time((container_health_state{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\", name=~\".+\"} == bool 0)[$__range:1m] @ end())) > 0))",
                         "interval": "",
-                        "legendFormat": "{{name}} @ {{instance}}"
+                        "legendFormat": "{{name}} · {{host}}"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {
+                "interval": "1m"
+              }
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "state-timeline",
+            "version": "13.2.3",
+            "spec": {
+              "options": {
+                "alignValue": "left",
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
+                "legend": {
+                  "displayMode": "list",
+                  "overflow": "ellipsis",
+                  "placement": "bottom",
+                  "showLegend": false
+                },
+                "mergeValues": false,
+                "perPage": 25,
+                "rowHeight": 0.9,
+                "showValue": "never",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "suffix:min unhealthy",
+                  "decimals": 0,
+                  "mappings": [
+                    {
+                      "type": "value",
+                      "options": {
+                        "0": {
+                          "text": "Healthy",
+                          "color": "dark-green",
+                          "index": 0
+                        },
+                        "1": {
+                          "text": "1 min unhealthy",
+                          "color": "semi-dark-red",
+                          "index": 1
+                        }
+                      }
+                    }
+                  ],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "dark-green"
+                      },
+                      {
+                        "value": 1,
+                        "color": "semi-dark-red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "fixed",
+                    "fixedColor": "semi-dark-red"
+                  },
+                  "noValue": "All healthchecks passing",
+                  "custom": {
+                    "axisPlacement": "auto",
+                    "fillOpacity": 70,
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineWidth": 0,
+                    "spanNulls": false
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-55": {
+        "kind": "Panel",
+        "spec": {
+          "id": 55,
+          "title": "$image",
+          "description": "Containers on each tag of one image, stacked to the image total; one panel per image that ran more than one tag in the range.\n- Version: the tag of `image`; a new digest under the same tag is the same version.\n- A one-step spike: a recreated container, counted under both its old and new series.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "spec": {
+                        "expr": "count by (tag) (\n  label_replace(label_replace(container_last_seen{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\", name=~\".+\", image=~`${image:regex}(:[^:/@]*)?(@.*)?`}, \"repo\", \"$1\", \"image\", \"([^@]*?)(:[^:/@]*)?(@.*)?\"), \"tag\", \"$1\", \"image\", \"[^@]*:([^:/@]+)(@.*)?\")\n)",
+                        "interval": "",
+                        "legendFormat": "{{tag}}"
+                      },
+                      "labels": {
+                        "grafana.app/export-label": "prometheus-1",
+                        "grafana.app/export-datasource-name": "Mimir Linux"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.2.3",
+            "spec": {
+              "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
+                "legend": {
+                  "calcs": ["last"],
+                  "displayMode": "table",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Name",
+                  "sortDesc": true,
+                  "width": 200
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "decimals": 0,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "transparent"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 60,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "stepAfter",
+                    "lineWidth": 0,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "never",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "normal"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-9": {
+        "kind": "Panel",
+        "spec": {
+          "id": 9,
+          "title": "Memory usage",
+          "description": "Anonymous memory: heap and stacks. Page cache and the container's own resident binary pages fall outside it, so a container whose footprint is mostly cache reads low.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "spec": {
+                        "expr": "sum(container_memory_rss{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\",name=~\".+\"}) by (host, name)",
+                        "interval": "",
+                        "legendFormat": "{{name}} · {{host}}"
                       },
                       "labels": {
                         "grafana.app/export-label": "prometheus-1",
@@ -3960,7 +4307,8 @@
                   "placement": "right",
                   "showLegend": true,
                   "sortBy": "Mean",
-                  "sortDesc": true
+                  "sortDesc": true,
+                  "width": 480
                 },
                 "tooltip": {
                   "hideZeros": false,
@@ -4223,7 +4571,7 @@
                                             "x": 0,
                                             "y": 0,
                                             "width": 24,
-                                            "height": 8,
+                                            "height": 9,
                                             "element": {
                                               "kind": "ElementReference",
                                               "name": "panel-35"
@@ -4234,51 +4582,12 @@
                                           "kind": "GridLayoutItem",
                                           "spec": {
                                             "x": 0,
-                                            "y": 8,
+                                            "y": 9,
                                             "width": 24,
-                                            "height": 8,
+                                            "height": 9,
                                             "element": {
                                               "kind": "ElementReference",
                                               "name": "panel-36"
-                                            }
-                                          }
-                                        },
-                                        {
-                                          "kind": "GridLayoutItem",
-                                          "spec": {
-                                            "x": 0,
-                                            "y": 16,
-                                            "width": 24,
-                                            "height": 8,
-                                            "element": {
-                                              "kind": "ElementReference",
-                                              "name": "panel-43"
-                                            }
-                                          }
-                                        },
-                                        {
-                                          "kind": "GridLayoutItem",
-                                          "spec": {
-                                            "x": 0,
-                                            "y": 24,
-                                            "width": 12,
-                                            "height": 8,
-                                            "element": {
-                                              "kind": "ElementReference",
-                                              "name": "panel-37"
-                                            }
-                                          }
-                                        },
-                                        {
-                                          "kind": "GridLayoutItem",
-                                          "spec": {
-                                            "x": 12,
-                                            "y": 24,
-                                            "width": 12,
-                                            "height": 8,
-                                            "element": {
-                                              "kind": "ElementReference",
-                                              "name": "panel-45"
                                             }
                                           }
                                         }
@@ -4301,7 +4610,7 @@
                                             "x": 0,
                                             "y": 0,
                                             "width": 24,
-                                            "height": 8,
+                                            "height": 9,
                                             "element": {
                                               "kind": "ElementReference",
                                               "name": "panel-15"
@@ -4312,51 +4621,12 @@
                                           "kind": "GridLayoutItem",
                                           "spec": {
                                             "x": 0,
-                                            "y": 8,
+                                            "y": 9,
                                             "width": 24,
-                                            "height": 8,
+                                            "height": 9,
                                             "element": {
                                               "kind": "ElementReference",
                                               "name": "panel-9"
-                                            }
-                                          }
-                                        },
-                                        {
-                                          "kind": "GridLayoutItem",
-                                          "spec": {
-                                            "x": 0,
-                                            "y": 16,
-                                            "width": 24,
-                                            "height": 8,
-                                            "element": {
-                                              "kind": "ElementReference",
-                                              "name": "panel-44"
-                                            }
-                                          }
-                                        },
-                                        {
-                                          "kind": "GridLayoutItem",
-                                          "spec": {
-                                            "x": 0,
-                                            "y": 24,
-                                            "width": 12,
-                                            "height": 8,
-                                            "element": {
-                                              "kind": "ElementReference",
-                                              "name": "panel-14"
-                                            }
-                                          }
-                                        },
-                                        {
-                                          "kind": "GridLayoutItem",
-                                          "spec": {
-                                            "x": 12,
-                                            "y": 24,
-                                            "width": 12,
-                                            "height": 8,
-                                            "element": {
-                                              "kind": "ElementReference",
-                                              "name": "panel-46"
                                             }
                                           }
                                         }
@@ -4392,7 +4662,7 @@
                                             "x": 0,
                                             "y": 0,
                                             "width": 24,
-                                            "height": 8,
+                                            "height": 9,
                                             "element": {
                                               "kind": "ElementReference",
                                               "name": "panel-39"
@@ -4403,25 +4673,12 @@
                                           "kind": "GridLayoutItem",
                                           "spec": {
                                             "x": 0,
-                                            "y": 8,
+                                            "y": 9,
                                             "width": 24,
-                                            "height": 8,
+                                            "height": 9,
                                             "element": {
                                               "kind": "ElementReference",
                                               "name": "panel-40"
-                                            }
-                                          }
-                                        },
-                                        {
-                                          "kind": "GridLayoutItem",
-                                          "spec": {
-                                            "x": 0,
-                                            "y": 16,
-                                            "width": 24,
-                                            "height": 8,
-                                            "element": {
-                                              "kind": "ElementReference",
-                                              "name": "panel-38"
                                             }
                                           }
                                         }
@@ -4444,7 +4701,7 @@
                                             "x": 0,
                                             "y": 0,
                                             "width": 24,
-                                            "height": 8,
+                                            "height": 9,
                                             "element": {
                                               "kind": "ElementReference",
                                               "name": "panel-4"
@@ -4455,12 +4712,64 @@
                                           "kind": "GridLayoutItem",
                                           "spec": {
                                             "x": 0,
-                                            "y": 8,
+                                            "y": 9,
                                             "width": 24,
-                                            "height": 8,
+                                            "height": 9,
                                             "element": {
                                               "kind": "ElementReference",
                                               "name": "panel-21"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "title": "Cache & Pressure",
+                        "layout": {
+                          "kind": "TabsLayout",
+                          "spec": {
+                            "tabs": [
+                              {
+                                "kind": "TabsLayoutTab",
+                                "spec": {
+                                  "title": "Combined",
+                                  "layout": {
+                                    "kind": "GridLayout",
+                                    "spec": {
+                                      "items": [
+                                        {
+                                          "kind": "GridLayoutItem",
+                                          "spec": {
+                                            "x": 0,
+                                            "y": 0,
+                                            "width": 12,
+                                            "height": 9,
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-37"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "kind": "GridLayoutItem",
+                                          "spec": {
+                                            "x": 12,
+                                            "y": 0,
+                                            "width": 12,
+                                            "height": 9,
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-43"
                                             }
                                           }
                                         },
@@ -4468,17 +4777,153 @@
                                           "kind": "GridLayoutItem",
                                           "spec": {
                                             "x": 0,
-                                            "y": 16,
-                                            "width": 24,
-                                            "height": 8,
+                                            "y": 9,
+                                            "width": 12,
+                                            "height": 9,
                                             "element": {
                                               "kind": "ElementReference",
-                                              "name": "panel-30"
+                                              "name": "panel-38"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "kind": "GridLayoutItem",
+                                          "spec": {
+                                            "x": 12,
+                                            "y": 9,
+                                            "width": 12,
+                                            "height": 9,
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-45"
                                             }
                                           }
                                         }
                                       ]
                                     }
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "TabsLayoutTab",
+                                "spec": {
+                                  "title": "Per Host",
+                                  "layout": {
+                                    "kind": "GridLayout",
+                                    "spec": {
+                                      "items": [
+                                        {
+                                          "kind": "GridLayoutItem",
+                                          "spec": {
+                                            "x": 0,
+                                            "y": 0,
+                                            "width": 12,
+                                            "height": 9,
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-14"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "kind": "GridLayoutItem",
+                                          "spec": {
+                                            "x": 12,
+                                            "y": 0,
+                                            "width": 12,
+                                            "height": 9,
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-44"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "kind": "GridLayoutItem",
+                                          "spec": {
+                                            "x": 0,
+                                            "y": 9,
+                                            "width": 12,
+                                            "height": 9,
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-30"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "kind": "GridLayoutItem",
+                                          "spec": {
+                                            "x": 12,
+                                            "y": 9,
+                                            "width": 12,
+                                            "height": 9,
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-46"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "title": "Versions",
+                        "layout": {
+                          "kind": "GridLayout",
+                          "spec": {
+                            "items": [
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 0,
+                                  "y": 0,
+                                  "width": 24,
+                                  "height": 5,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-55"
+                                  },
+                                  "repeat": {
+                                    "mode": "variable",
+                                    "value": "image",
+                                    "direction": "h",
+                                    "maxPerRow": 2
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "title": "Health",
+                        "layout": {
+                          "kind": "GridLayout",
+                          "spec": {
+                            "items": [
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "x": 0,
+                                  "y": 0,
+                                  "width": 24,
+                                  "height": 19,
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-54"
                                   }
                                 }
                               }
@@ -4501,7 +4946,7 @@
                                   "x": 0,
                                   "y": 0,
                                   "width": 24,
-                                  "height": 17,
+                                  "height": 19,
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-17"
@@ -4524,14 +4969,13 @@
     "links": [],
     "liveNow": false,
     "preload": false,
-    "tags": ["cadvisor", "docker"],
+    "tags": ["docker"],
     "timeSettings": {
       "timezone": "browser",
       "from": "now-24h",
       "to": "now",
       "autoRefresh": "1m",
       "autoRefreshIntervals": [
-        "5s",
         "10s",
         "30s",
         "1m",
@@ -4545,7 +4989,7 @@
       "hideTimepicker": false,
       "fiscalYearStartMonth": 0
     },
-    "title": "Cadvisor exporter",
+    "title": "Cadvisor",
     "variables": [
       {
         "kind": "QueryVariable",
@@ -4564,7 +5008,7 @@
             "group": "prometheus",
             "version": "v0",
             "spec": {
-              "query": "label_values({__name__=~\"container.*\"},instance)",
+              "query": "label_values({__name__=~\"container.*\"},host)",
               "refId": "Prometheus-host-Variable-Query"
             },
             "labels": {
@@ -4575,7 +5019,7 @@
           "regex": "",
           "regexApplyTo": "value",
           "sort": "disabled",
-          "definition": "label_values({__name__=~\"container.*\"},instance)",
+          "definition": "label_values({__name__=~\"container.*\"},host)",
           "options": [],
           "multi": true,
           "includeAll": true,
@@ -4600,7 +5044,7 @@
             "group": "prometheus",
             "version": "v0",
             "spec": {
-              "query": "label_values({__name__=~\"container.*\", instance=~\"$hostname\"},container_label_com_docker_compose_project)",
+              "query": "label_values({__name__=~\"container.*\", host=~\"$hostname\"},container_label_com_docker_compose_project)",
               "refId": "Prometheus-project-Variable-Query"
             },
             "labels": {
@@ -4611,7 +5055,7 @@
           "regex": "",
           "regexApplyTo": "value",
           "sort": "disabled",
-          "definition": "label_values({__name__=~\"container.*\", instance=~\"$hostname\"},container_label_com_docker_compose_project)",
+          "definition": "label_values({__name__=~\"container.*\", host=~\"$hostname\"},container_label_com_docker_compose_project)",
           "options": [],
           "multi": true,
           "includeAll": true,
@@ -4636,7 +5080,7 @@
             "group": "prometheus",
             "version": "v0",
             "spec": {
-              "query": "label_values({__name__=~\"container.*\", instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\"},name)",
+              "query": "label_values({__name__=~\"container.*\", host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\"},name)",
               "refId": "Prometheus-container-Variable-Query"
             },
             "labels": {
@@ -4647,12 +5091,49 @@
           "regex": "",
           "regexApplyTo": "value",
           "sort": "disabled",
-          "definition": "label_values({__name__=~\"container.*\", instance=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\"},name)",
+          "definition": "label_values({__name__=~\"container.*\", host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\"},name)",
           "options": [],
           "multi": true,
           "includeAll": true,
           "allValue": ".*",
           "allowCustomValue": true
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "name": "image",
+          "current": {
+            "text": "",
+            "value": ""
+          },
+          "label": "Image",
+          "hide": "hideVariable",
+          "refresh": "onTimeRangeChanged",
+          "skipUrlSync": false,
+          "query": {
+            "kind": "DataQuery",
+            "group": "prometheus",
+            "version": "v0",
+            "spec": {
+              "qryType": 3,
+              "query": "query_result(count by (repo) (count by (repo, tag) (label_replace(label_replace(count_over_time(container_last_seen{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\", name=~\".+\"}[$__range]), \"repo\", \"$1\", \"image\", \"([^@]*?)(:[^:/@]*)?(@.*)?\"), \"tag\", \"$1\", \"image\", \"[^@]*:([^:/@]+)(@.*)?\"))) > 1)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            },
+            "labels": {
+              "grafana.app/export-label": "prometheus-1",
+              "grafana.app/export-datasource-name": "Mimir Linux"
+            }
+          },
+          "regex": "/repo=\"([^\"]+)\"/",
+          "regexApplyTo": "value",
+          "sort": "alphabeticalAsc",
+          "definition": "query_result(count by (repo) (count by (repo, tag) (label_replace(label_replace(count_over_time(container_last_seen{host=~\"$hostname\", container_label_com_docker_compose_project=~\"$project\", name=~\"$container\", name=~\".+\"}[$__range]), \"repo\", \"$1\", \"image\", \"([^@]*?)(:[^:/@]*)?(@.*)?\"), \"tag\", \"$1\", \"image\", \"[^@]*:([^:/@]+)(@.*)?\"))) > 1)",
+          "options": [],
+          "multi": true,
+          "includeAll": true,
+          "allValue": ".+",
+          "allowCustomValue": false
         }
       }
     ]
